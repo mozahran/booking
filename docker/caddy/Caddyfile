@@ -1,0 +1,42 @@
+{
+    # Debug
+    {$CADDY_DEBUG}
+}
+
+(cors) {
+    @cors_preflight{args.0} method OPTIONS
+    @cors{args.0} header Origin {args.0}
+
+    handle @cors_preflight{args.0} {
+        header {
+            Access-Control-Allow-Origin "{args.0}"
+            Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+            Access-Control-Allow-Headers *
+            Access-Control-Max-Age "3600"
+            defer   #turn on defer on your header directive to make sure the new header values are set after proxying
+        }
+        respond "" 204
+    }
+
+    handle @cors{args.0} {
+        header {
+            Access-Control-Allow-Origin "{args.0}"
+            Access-Control-Expose-Headers *
+            defer
+        }
+    }
+}
+
+{$SERVER_NAME}
+
+{$CADDY_EXTRA_CONFIG}
+
+log
+
+route {
+    root * /app/public
+    import cors http://localhost:90
+    php_fastcgi unix//var/run/php/php-fpm.sock
+    encode zstd gzip
+    file_server
+}
