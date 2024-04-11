@@ -9,7 +9,7 @@ use App\Contract\Resolver\OccurrenceResolverInterface;
 use App\Domain\DataObject\Booking\Occurrence;
 use App\Domain\DataObject\Set\OccurrenceSet;
 
-final readonly class OccurrenceResolver implements OccurrenceResolverInterface
+final class OccurrenceResolver implements OccurrenceResolverInterface
 {
     public function __construct(
         private OccurrenceRepositoryInterface $occurrenceRepository,

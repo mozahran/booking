@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Controller\V1\Booking;
 
 use App\Entity\SpaceEntity;
-use App\Tests\HasAuthenticatedClient;
+use App\Utils\Testing\HasAuthenticatedClient;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;

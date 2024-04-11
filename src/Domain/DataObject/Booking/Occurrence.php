@@ -7,7 +7,7 @@ namespace App\Domain\DataObject\Booking;
 use App\Contract\DataObject\Identifiable;
 use App\Contract\DataObject\Normalizable;
 
-final readonly class Occurrence implements Normalizable, Identifiable
+final class Occurrence implements Normalizable, Identifiable
 {
     public function __construct(
         private TimeRange $timeRange,

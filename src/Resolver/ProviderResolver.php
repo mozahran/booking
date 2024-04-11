@@ -7,7 +7,7 @@ use App\Contract\Resolver\ProviderResolverInterface;
 use App\Domain\DataObject\Provider;
 use App\Domain\DataObject\Set\ProviderSet;
 
-final readonly class ProviderResolver implements ProviderResolverInterface
+final class ProviderResolver implements ProviderResolverInterface
 {
     public function __construct(
         private ProviderRepositoryInterface $providerRepository,

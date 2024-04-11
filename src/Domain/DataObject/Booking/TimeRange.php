@@ -8,8 +8,9 @@ use App\Contract\DataObject\Normalizable;
 use App\Contract\Request\TimeRangeAware;
 use App\Domain\Exception\InvalidTimeRangeException;
 
-final readonly class TimeRange implements Normalizable
+final class TimeRange implements Normalizable
 {
+    public const SHORT_FORMAT = 'Y-m-d H:i';
     private \DateTimeImmutable $startsAt;
     private \DateTimeImmutable $endsAt;
 
@@ -51,6 +52,16 @@ final readonly class TimeRange implements Normalizable
         return $this->startsAt;
     }
 
+    public function getStartMinutes(): int
+    {
+        $startsAt = $this->getStartsAt();
+
+        $h = (int) $startsAt->format('G');
+        $m = (int) $startsAt->format('i');
+
+        return ($h * 60) + $m;
+    }
+
     public function getStartTime(): string
     {
         return $this->getStartsAt()->format('H:i:00');
@@ -59,6 +70,16 @@ final readonly class TimeRange implements Normalizable
     public function getEndsAt(): \DateTimeImmutable
     {
         return $this->endsAt;
+    }
+
+    public function getEndMinutes(): int
+    {
+        $endsAt = $this->getEndsAt();
+
+        $h = (int) $endsAt->format('G');
+        $m = (int) $endsAt->format('i');
+
+        return ($h * 60) + $m;
     }
 
     public function getEndTime(): string

@@ -7,7 +7,7 @@ use App\Contract\Resolver\SpaceResolverInterface;
 use App\Domain\DataObject\Set\SpaceSet;
 use App\Domain\DataObject\Space;
 
-final readonly class SpaceResolver implements SpaceResolverInterface
+final class SpaceResolver implements SpaceResolverInterface
 {
     public function __construct(
         private SpaceRepositoryInterface $spaceRepository,

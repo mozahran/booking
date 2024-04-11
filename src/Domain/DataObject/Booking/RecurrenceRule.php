@@ -6,7 +6,7 @@ namespace App\Domain\DataObject\Booking;
 
 use App\Contract\DataObject\Normalizable;
 
-final readonly class RecurrenceRule implements Normalizable
+final class RecurrenceRule implements Normalizable
 {
     /**
      * @param \DateTimeImmutable[] $excludedDates

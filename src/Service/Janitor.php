@@ -6,7 +6,7 @@ use App\Contract\Repository\OccurrenceRepositoryInterface;
 use App\Contract\Service\JanitorInterface;
 use App\Domain\DataObject\Set\OccurrenceSet;
 
-final readonly class Janitor implements JanitorInterface
+final class Janitor implements JanitorInterface
 {
     public function __construct(
         private OccurrenceRepositoryInterface $occurrenceRepository,

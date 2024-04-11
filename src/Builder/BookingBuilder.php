@@ -20,7 +20,6 @@ final class BookingBuilder
     private ?int $id = null;
     private ?int $userId = null;
     private ?int $spaceId = null;
-    private int $occurrenceLimit = 30;
     private OccurrenceSet $occurrenceSet;
 
     public function __construct()

@@ -11,7 +11,7 @@ use App\Domain\Exception\WorkspaceNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 
-final readonly class WorkspacePersistor implements WorkspacePersistorInterface
+final class WorkspacePersistor implements WorkspacePersistorInterface
 {
     public function __construct(
         private WorkspaceTranslatorInterface $workspaceTranslator,

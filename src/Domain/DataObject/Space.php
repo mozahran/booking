@@ -5,7 +5,7 @@ namespace App\Domain\DataObject;
 use App\Contract\DataObject\Identifiable;
 use App\Contract\DataObject\Normalizable;
 
-final readonly class Space implements Normalizable, Identifiable
+final class Space implements Normalizable, Identifiable
 {
     public function __construct(
         private string $name,

@@ -7,7 +7,7 @@ use App\Contract\Resolver\UserResolverInterface;
 use App\Domain\DataObject\Set\UserSet;
 use App\Domain\DataObject\User;
 
-final readonly class UserResolver implements UserResolverInterface
+final class UserResolver implements UserResolverInterface
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,

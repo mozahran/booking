@@ -11,7 +11,7 @@ use App\Contract\Service\ChronoVortexInterface;
 use App\Domain\Exception\OccurrenceNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-final readonly class ChronoVortex implements ChronoVortexInterface
+final class ChronoVortex implements ChronoVortexInterface
 {
     public function __construct(
         private OccurrenceResolverInterface $occurrenceResolver,

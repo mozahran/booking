@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use App\Builder\BookingBuilder;
-use App\Builder\OccurrenceBuilder;
+use App\Builder\OccurrenceSetBuilder;
 use App\Contract\Persistor\BookingPersistorInterface;
 use App\Contract\Repository\OccurrenceRepositoryInterface;
 use App\Contract\Resolver\BookingResolverInterface;
@@ -17,7 +17,7 @@ use App\Domain\Exception\TimeSlotNotAvailableException;
 use App\Request\BookingRequest;
 use Doctrine\ORM\EntityManagerInterface;
 
-final readonly class ChronoConductor implements ChronoConductorInterface
+final class ChronoConductor implements ChronoConductorInterface
 {
     public function __construct(
         private BookingResolverInterface $bookingResolver,
@@ -43,7 +43,7 @@ final readonly class ChronoConductor implements ChronoConductorInterface
         $timeRange = TimeRange::fromRequest($request);
         $recurrenceRule = $this->createRecurrenceRule($request, $booking);
 
-        $occurrenceSet = (new OccurrenceBuilder())
+        $occurrenceSet = (new OccurrenceSetBuilder())
             ->setExistingOccurrences($existingOccurrenceSet)
             ->setTimeRange($timeRange)
             ->setRule($recurrenceRule)

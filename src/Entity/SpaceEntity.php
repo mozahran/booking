@@ -29,9 +29,13 @@ class SpaceEntity
     #[ORM\Column]
     private ?bool $active = true;
 
+    #[ORM\OneToMany(targetEntity: RuleEntity::class, mappedBy: 'space', orphanRemoval: true)]
+    private Collection $rules;
+
     public function __construct()
     {
         $this->bookings = new ArrayCollection();
+        $this->rules = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -103,5 +107,13 @@ class SpaceEntity
         $this->active = $active;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, RuleEntity>
+     */
+    public function getRules(): Collection
+    {
+        return $this->rules;
     }
 }

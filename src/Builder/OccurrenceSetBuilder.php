@@ -12,7 +12,7 @@ use App\Domain\DataObject\Set\OccurrenceSet;
 use App\Domain\Exception\InvalidTimeRangeException;
 use RRule\RRule;
 
-final class OccurrenceBuilder
+final class OccurrenceSetBuilder
 {
     private OccurrenceSet $occurrenceSet;
     private OccurrenceSet $existingOccurrences;
@@ -41,15 +41,17 @@ final class OccurrenceBuilder
         ?int $bookingId = null,
         ?int $id = null,
     ): self {
+        $timeRange = new TimeRange(
+            startsAt: $startsAt,
+            endsAt: $endsAt,
+        );
+        $status = new Status(
+            cancelled: $cancelled,
+            cancellerId: $cancellerId,
+        );
         $occurrence = new Occurrence(
-            timeRange: new TimeRange(
-                startsAt: $startsAt,
-                endsAt: $endsAt,
-            ),
-            status: new Status(
-                cancelled: $cancelled,
-                cancellerId: $cancellerId,
-            ),
+            timeRange: $timeRange,
+            status: $status,
             bookingId: $bookingId,
             id: $id,
         );
@@ -97,14 +99,12 @@ final class OccurrenceBuilder
      */
     public function build(): OccurrenceSet
     {
-        if (null !== $this->rule
-            && null === $this->rule->getRule()
-            && isset($this->timeRange)) {
+        if ($this->isMissingRule() && isset($this->timeRange)) {
             $occurrence = $this->createOccurrence($this->timeRange);
             $this->occurrenceSet->add(item: $occurrence);
         }
 
-        if (null !== $this->rule && null !== $this->rule->getRule()) {
+        if ($this->isNotMissingRule()) {
             $occurrences = $this->buildOccurrencesFromRule();
             foreach ($occurrences as $occurrence) {
                 $this->occurrenceSet->add(item: $occurrence);
@@ -121,15 +121,14 @@ final class OccurrenceBuilder
         $existingOccurrence = $this->existingOccurrences->find(
             dateString: $timeRange->getDateString(),
         );
-        $isCancelled = $existingOccurrence?->getStatus()->isCancelled() ?? false;
-        $cancellerId = $existingOccurrence?->getStatus()->getCancellerId();
+        $status = new Status(
+            cancelled: $existingOccurrence?->getStatus()->isCancelled() ?? false,
+            cancellerId: $existingOccurrence?->getStatus()->getCancellerId(),
+        );
 
         return new Occurrence(
             timeRange: $timeRange,
-            status: new Status(
-                cancelled: $isCancelled,
-                cancellerId: $cancellerId,
-            ),
+            status: $status,
             bookingId: $existingOccurrence?->getBookingId(),
             id: $existingOccurrence?->getId(),
         );
@@ -175,5 +174,15 @@ final class OccurrenceBuilder
             needle: $dateTime,
             haystack: $this->excludedDates,
         );
+    }
+
+    private function isMissingRule(): bool
+    {
+        return null !== $this->rule && null === $this->rule->getRule();
+    }
+
+    private function isNotMissingRule(): bool
+    {
+        return null !== $this->rule && null !== $this->rule->getRule();
     }
 }

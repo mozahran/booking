@@ -7,7 +7,7 @@ use App\Contract\Resolver\WorkspaceResolverInterface;
 use App\Domain\DataObject\Set\WorkspaceSet;
 use App\Domain\DataObject\Workspace;
 
-final readonly class WorkspaceResolver implements WorkspaceResolverInterface
+final class WorkspaceResolver implements WorkspaceResolverInterface
 {
     public function __construct(
         private WorkspaceRepositoryInterface $workspaceRepository,

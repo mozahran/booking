@@ -6,7 +6,7 @@ namespace App\Domain\DataObject\Booking;
 
 use App\Contract\DataObject\Normalizable;
 
-final readonly class BookingSpec implements Normalizable
+final class BookingSpec implements Normalizable
 {
     public function __construct(
         private TimeRange $timeRange,

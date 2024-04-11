@@ -20,7 +20,7 @@ use App\Domain\Exception\SpaceNotFoundException;
 use App\Domain\Exception\WorkspaceNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-final readonly class Nexus implements NexusInterface
+final class Nexus implements NexusInterface
 {
     public function __construct(
         private WorkspaceResolverInterface $workspaceResolver,

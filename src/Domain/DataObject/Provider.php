@@ -5,7 +5,7 @@ namespace App\Domain\DataObject;
 use App\Contract\DataObject\Identifiable;
 use App\Contract\DataObject\Normalizable;
 
-final readonly class Provider implements Normalizable, Identifiable
+final class Provider implements Normalizable, Identifiable
 {
     public function __construct(
         private string $name,
