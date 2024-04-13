@@ -24,6 +24,7 @@ final class UserTranslator implements UserTranslatorInterface
             name: $entity->getName(),
             email: $entity->getEmail(),
             active: $entity->isActive(),
+            roles: $entity->getRoles(),
             id: $entity->getId(),
         );
     }

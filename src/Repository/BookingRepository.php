@@ -99,4 +99,52 @@ class BookingRepository extends ServiceEntityRepository implements BookingReposi
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param TimeRange[] $timeRanges
+     */
+    public function countBufferConflicts(
+        int $spaceId,
+        array $timeRanges,
+    ): int {
+        if (empty($timeRanges)) {
+            return 0;
+        }
+        $queryBuilder = $this
+            ->createQueryBuilder('b')
+            ->select('count(b)')
+            ->leftJoin('b.occurrences', 'o')
+            ->andWhere('IDENTITY(b.space) = :spaceId')
+            ->setParameter('spaceId', $spaceId);
+
+        $expressions = [];
+        foreach ($timeRanges as $timeRange) {
+            $and = $queryBuilder->expr()->orX();
+            $and->add(
+                arg: $queryBuilder->expr()->gt(
+                    x: 'o.startsAt',
+                    y: $queryBuilder->expr()->literal(
+                        $timeRange->getEndsAt()->format(TimeRange::SHORT_FORMAT)
+                    )
+                )
+            );
+            $and->add(
+                arg: $queryBuilder->expr()->gt(
+                    x: 'o.endsAt',
+                    y: $queryBuilder->expr()->literal(
+                        $timeRange->getStartsAt()->format(TimeRange::SHORT_FORMAT)
+                    )
+                )
+            );
+            $expressions[] = $and;
+        }
+
+        $and = $queryBuilder->expr()->andX();
+        foreach ($expressions as $expression) {
+            $and->add($expression);
+        }
+        $queryBuilder->andWhere($and);
+
+        return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
 }

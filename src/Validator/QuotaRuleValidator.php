@@ -9,7 +9,7 @@ use App\Contract\Validator\RuleValidatorInterface;
 use App\Domain\DataObject\Booking\Booking;
 use App\Domain\DataObject\Rule\Quota;
 
-class QuotaRuleValidator implements RuleValidatorInterface
+final class QuotaRuleValidator implements RuleValidatorInterface
 {
     public function validate(
         Booking $booking,

@@ -11,6 +11,8 @@ use App\Domain\Exception\InvalidTimeRangeException;
 final class TimeRange implements Normalizable
 {
     public const SHORT_FORMAT = 'Y-m-d H:i';
+    public const DATE_FORMAT = 'Y-m-d';
+
     private \DateTimeImmutable $startsAt;
     private \DateTimeImmutable $endsAt;
 
@@ -103,7 +105,7 @@ final class TimeRange implements Normalizable
 
     public function getDateString(): string
     {
-        return $this->getStartsAt()->format('Y-m-d');
+        return $this->getStartsAt()->format(self::DATE_FORMAT);
     }
 
     public function normalize(): array

@@ -20,7 +20,7 @@ class PhoenixTest extends KernelTestCase
         parent::setUp();
 
         $this->phoenix = $this->getContainer()->get(PhoenixInterface::class);
-        $this->entityManager = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $this->entityManager = $this->getContainer()->get(EntityManagerInterface::class);
     }
 
     public function testDeactivateUser()

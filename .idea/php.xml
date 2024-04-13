@@ -220,6 +220,7 @@
   <component name="PhpUnit">
     <phpunit_settings>
       <phpunit_by_interpreter interpreter_id="f9c91fea-91e7-43bc-819f-5cca0fe26d62" bootstrap_file_path="vendor/autoload.php" configuration_file_path="phpunit.xml.dist" custom_loader_path="vendor/autoload.php" phpunit_phar_path="bin/phpunit" use_configuration_file="true" />
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/vendor/autoload.php" use_configuration_file="true" />
     </phpunit_settings>
   </component>
 </project>

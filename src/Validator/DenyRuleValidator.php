@@ -9,7 +9,7 @@ use App\Contract\Validator\RuleValidatorInterface;
 use App\Domain\DataObject\Booking\Booking;
 use App\Domain\DataObject\Rule\Deny;
 
-class DenyRuleValidator implements RuleValidatorInterface
+final class DenyRuleValidator implements RuleValidatorInterface
 {
     public function validate(
         Booking $booking,

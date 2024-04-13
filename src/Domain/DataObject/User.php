@@ -9,11 +9,17 @@ use App\Contract\DataObject\Normalizable;
 
 final class User implements Normalizable, Identifiable
 {
+    /**
+     * @param string[] $roles
+     */
     public function __construct(
         private string $name,
         private string $email,
         #[\SensitiveParameter]
         private bool $active,
+        private array $roles = [
+            'ROLE_USER',
+        ],
         private ?string $password = null,
         private ?int $id = null,
     ) {
@@ -44,6 +50,14 @@ final class User implements Normalizable, Identifiable
         return $this->active;
     }
 
+    /**
+     * @return string[]
+     */
+    public function getRoles(): array
+    {
+        return $this->roles;
+    }
+
     public function normalize(): array
     {
         return [
@@ -51,6 +65,7 @@ final class User implements Normalizable, Identifiable
             'name' => $this->getName(),
             'email' => $this->getEmail(),
             'active' => $this->isActive(),
+            'roles' => $this->getRoles(),
         ];
     }
 }

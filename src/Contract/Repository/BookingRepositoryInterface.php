@@ -29,4 +29,12 @@ interface BookingRepositoryInterface
         array $ids,
         int $cancellerId,
     ): void;
+
+    /**
+     * @param TimeRange[] $timeRanges
+     */
+    public function countBufferConflicts(
+        int $spaceId,
+        array $timeRanges,
+    ): int;
 }

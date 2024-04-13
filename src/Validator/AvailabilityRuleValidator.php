@@ -9,7 +9,7 @@ use App\Domain\DataObject\Booking\Occurrence;
 use App\Domain\DataObject\Rule\Availability;
 use App\Domain\Exception\RuleViolationException;
 
-class AvailabilityRuleValidator implements RuleValidatorInterface
+final class AvailabilityRuleValidator implements RuleValidatorInterface
 {
     /**
      * @return RuleViolationException[]
