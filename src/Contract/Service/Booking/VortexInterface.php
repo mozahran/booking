@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Contract\Service;
+namespace App\Contract\Service\Booking;
 
 use App\Domain\Exception\AccessDeniedException;
 use App\Domain\Exception\DataMismatchException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-interface ChronoVortexInterface
+interface VortexInterface
 {
     /**
      * @param int[] $bookingIds

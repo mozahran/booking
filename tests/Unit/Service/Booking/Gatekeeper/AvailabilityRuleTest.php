@@ -2,13 +2,12 @@
 
 namespace App\Tests\Unit\Service\Booking\Gatekeeper;
 
-use App\Builder\BookingBuilder;
-use App\Builder\OccurrenceSetBuilder;
 use App\Contract\Service\GatekeeperInterface;
 use App\Contract\Service\RuleSmithInterface;
-use App\Domain\DataObject\Booking\TimeRange;
 use App\Domain\Enum\RuleType;
 use App\Domain\Exception\RuleViolationException;
+use App\Tests\Utils\TestBookingFactory;
+use App\Utils\DateSmith;
 use Generator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -28,29 +27,23 @@ class AvailabilityRuleTest extends KernelTestCase
         bool $throwsException,
         array $params,
     ) {
-        $startsAt = $params['startsAt'];
-        $endsAt = $params['endsAt'];
-        $spaceId = $params['spaceId'];
-        $rules = $params['rules'];
-
         if (true === $throwsException) {
             $this->expectException(RuleViolationException::class);
+        } else {
+            $this->assertTrue(true);
         }
 
-        $booking = $this->createSingleOccurrenceBooking(
-            startsAt: $startsAt,
-            endsAt: $endsAt,
-            spaceId: $spaceId,
+        $booking = TestBookingFactory::createSingleOccurrenceBooking(
+            startsAt: $params['startsAt'],
+            endsAt: $params['endsAt'],
+            spaceId: $params['spaceId'],
+            userId: $params['userId'],
         );
 
         $this->gatekeeper->validate(
-            rules: $rules,
+            rules: $params['rules'],
             booking: $booking,
         );
-
-        if (false === $throwsException) {
-            $this->assertTrue(true);
-        }
     }
 
     public static function dataProviderForTestRule(): Generator
@@ -61,9 +54,10 @@ class AvailabilityRuleTest extends KernelTestCase
         yield 'CASE #01, applicable, outside allowed time range' => [
             'throwsException' => true,
             'params' => [
-                'startsAt' => '2050-01-01 10:00',
-                'endsAt' => '2050-01-01 11:00',
+                'startsAt' => DateSmith::withTime(10, 0),
+                'endsAt' => DateSmith::withTime(11, 0),
                 'spaceId' => 1,
+                'userId' => 1,
                 'rules' => [
                     $ruleSmith->parse(
                         type: RuleType::AVAILABILITY,
@@ -76,9 +70,10 @@ class AvailabilityRuleTest extends KernelTestCase
         yield 'CASE #02, applicable, within allowed time range' => [
             'throwsException' => false,
             'params' => [
-                'startsAt' => '2050-01-01 20:00',
-                'endsAt' => '2050-01-01 21:00',
+                'startsAt' => DateSmith::withTime(20, 0),
+                'endsAt' => DateSmith::withTime(21, 0),
                 'spaceId' => 1,
+                'userId' => 1,
                 'rules' => [
                     $ruleSmith->parse(
                         type: RuleType::AVAILABILITY,
@@ -91,9 +86,10 @@ class AvailabilityRuleTest extends KernelTestCase
         yield 'CASE #03, applicable, outside allowed weekdays' => [
             'throwsException' => true,
             'params' => [
-                'startsAt' => '2050-01-01 20:00',
-                'endsAt' => '2050-01-01 21:00',
+                'startsAt' => DateSmith::withTime(20, 0),
+                'endsAt' => DateSmith::withTime(21, 0),
                 'spaceId' => 1,
+                'userId' => 1,
                 'rules' => [
                     $ruleSmith->parse(
                         type: RuleType::AVAILABILITY,
@@ -106,13 +102,14 @@ class AvailabilityRuleTest extends KernelTestCase
         yield 'CASE #04, applicable, within allowed weekdays' => [
             'throwsException' => false,
             'params' => [
-                'startsAt' => '2050-01-01 20:00',
-                'endsAt' => '2050-01-01 21:00',
+                'startsAt' => DateSmith::withTime(20, 0),
+                'endsAt' => DateSmith::withTime(21, 0),
                 'spaceId' => 1,
+                'userId' => 1,
                 'rules' => [
                     $ruleSmith->parse(
                         type: RuleType::AVAILABILITY,
-                        rule: '{"daysBitmask":64,"start":0,"end":1440,"spaceIds":null}',
+                        rule: '{"daysBitmask":127,"start":0,"end":1440,"spaceIds":null}',
                     ),
                 ],
             ],
@@ -121,9 +118,10 @@ class AvailabilityRuleTest extends KernelTestCase
         yield 'CASE #05, no space match, not applicable' => [
             'throwsException' => false,
             'params' => [
-                'startsAt' => '2050-01-01 20:00',
-                'endsAt' => '2050-01-01 21:00',
+                'startsAt' => DateSmith::withTime(20, 0),
+                'endsAt' => DateSmith::withTime(21, 0),
                 'spaceId' => 1,
+                'userId' => 1,
                 'rules' => [
                     $ruleSmith->parse(
                         type: RuleType::AVAILABILITY,

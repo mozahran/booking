@@ -7,6 +7,8 @@ use App\Builder\OccurrenceSetBuilder;
 use App\Domain\DataObject\Booking\Booking;
 use App\Domain\DataObject\Booking\TimeRange;
 use App\Domain\Exception\InvalidTimeRangeException;
+use DateTimeImmutable;
+use DateTimeInterface;
 
 class TestBookingFactory
 {
@@ -14,10 +16,13 @@ class TestBookingFactory
      * @throws InvalidTimeRangeException
      */
     public static function createSingleOccurrenceBooking(
-        string $startsAt,
-        string $endsAt,
+        DateTimeImmutable $startsAt,
+        DateTimeImmutable $endsAt,
         int $spaceId,
+        int $userId,
     ): Booking {
+        $startsAt = $startsAt->format(DateTimeInterface::ATOM);
+        $endsAt = $endsAt->format(DateTimeInterface::ATOM);
         $timeRange = new TimeRange(
             startsAt: $startsAt,
             endsAt: $endsAt,
@@ -31,6 +36,7 @@ class TestBookingFactory
             ->setOccurrenceSet($occurrenceSet)
             ->setTimeRange($timeRange)
             ->setSpaceId($spaceId)
+            ->setUserId($userId)
             ->build();
     }
 }

@@ -10,6 +10,7 @@ use App\Contract\Validator\RuleValidatorInterface;
 use App\Domain\DataObject\Booking\Booking;
 use App\Domain\Exception\RuleTypeMissingRuleValidatorException;
 use App\Domain\Exception\RuleViolationException;
+use App\Utils\RuleViolationList;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
 class Gatekeeper implements GatekeeperInterface
@@ -25,7 +26,6 @@ class Gatekeeper implements GatekeeperInterface
 
     /**
      * @param RuleInterface[] $rules
-     *
      * @throws RuleTypeMissingRuleValidatorException
      * @throws RuleViolationException
      */
@@ -33,44 +33,33 @@ class Gatekeeper implements GatekeeperInterface
         array $rules,
         Booking $booking,
     ): void {
-        $ruleViolationExceptions = [];
+        $violations = RuleViolationList::create();
         foreach ($rules as $rule) {
-            array_push($ruleViolationExceptions, ...$this->applyRuleToBooking($rule, $booking));
-        }
-        $this->complainUnlessEmpty($ruleViolationExceptions);
-    }
-
-    /**
-     * @throws RuleTypeMissingRuleValidatorException
-     */
-    private function applyRuleToBooking(
-        RuleInterface $rule,
-        Booking $booking,
-    ): array {
-        foreach ($this->ruleValidators as $ruleValidator) {
-            if (get_class($ruleValidator) === $rule->getType()->ruleValidator()) {
-                return $ruleValidator->validate($booking, $rule);
+            if ($this->isNotApplicableToBooking(rule: $rule, booking: $booking)) {
+                continue;
+            }
+            foreach ($this->ruleValidators as $ruleValidator) {
+                if (get_class($ruleValidator) === $rule->getType()->ruleValidator()) {
+                    $ruleViolationList = $ruleValidator->validate($booking, $rule);
+                    $violations->merge(
+                        violations: $ruleViolationList->all(),
+                    );
+                }
             }
         }
-
-        return [];
+        if (false === $violations->isEmpty()) {
+            throw $violations->asSingleException();
+        }
     }
 
-    /**
-     * @param RuleViolationException[] $ruleViolationExceptions
-     *
-     * @throws RuleViolationException
-     */
-    private function complainUnlessEmpty(array $ruleViolationExceptions): void
-    {
-        if (empty($ruleViolationExceptions)) {
-            return;
+    private function isNotApplicableToBooking(
+        RuleInterface $rule,
+        Booking $booking,
+    ): bool {
+        if (null === $rule->getSpaceIds()) {
+            return false;
         }
 
-        $violationMessages = [];
-        foreach ($ruleViolationExceptions as $violation) {
-            $violationMessages[] = $violation->getMessage();
-        }
-        throw new RuleViolationException(message: implode(PHP_EOL, $violationMessages));
+        return false === in_array($booking->getSpaceId(), $rule->getSpaceIds());
     }
 }

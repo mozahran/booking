@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\V1\Booking;
 
-use App\Contract\Service\ChronoVortexInterface;
+use App\Contract\Service\Booking\VortexInterface;
 use App\Domain\Enum\CancellationIntent;
 use App\Domain\Exception\AccessDeniedException;
 use App\Domain\Exception\DataMismatchException;
@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class CancellationController extends AbstractController
 {
     public function __construct(
-        private readonly ChronoVortexInterface $unbooker,
+        private readonly VortexInterface $vortex,
     ) {
     }
 
@@ -33,15 +33,15 @@ class CancellationController extends AbstractController
         CancellationRequest $request,
     ): JsonResponse {
         match ($request->getIntent()) {
-            CancellationIntent::ALL => $this->unbooker->cancelBookings(
+            CancellationIntent::ALL => $this->vortex->cancelBookings(
                 bookingIds: $request->getBookingIds(),
                 user: $this->getUser(),
             ),
-            CancellationIntent::SELECTED => $this->unbooker->cancelOccurrences(
+            CancellationIntent::SELECTED => $this->vortex->cancelOccurrences(
                 occurrenceIds: $request->getOccurrenceIds(),
                 user: $this->getUser(),
             ),
-            CancellationIntent::SELECTED_AND_FOLLOWING => $this->unbooker->cancelSelectedAndFollowingOccurrences(
+            CancellationIntent::SELECTED_AND_FOLLOWING => $this->vortex->cancelSelectedAndFollowingOccurrences(
                 occurrenceId: current($request->getOccurrenceIds()),
                 user: $this->getUser(),
             ),

@@ -9,7 +9,6 @@ use App\Contract\Service\RuleSmithInterface;
 use App\Domain\DataObject\Booking\TimeRange;
 use App\Domain\Enum\RuleType;
 use App\Domain\Exception\RuleViolationException;
-use App\Service\RuleSmith;
 use DateTime;
 use Generator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -38,6 +37,8 @@ class WindowRuleTest extends KernelTestCase
 
         if (true === $throwsException) {
             $this->expectException(RuleViolationException::class);
+        } else {
+            $this->assertTrue(true);
         }
 
         $timeRange = new TimeRange(
@@ -64,10 +65,6 @@ class WindowRuleTest extends KernelTestCase
             rules: $rules,
             booking: $booking,
         );
-
-        if (false === $throwsException) {
-            $this->assertTrue(true);
-        }
     }
 
     public static function dataProviderForTestRule(): Generator

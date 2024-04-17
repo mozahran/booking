@@ -7,10 +7,11 @@ namespace App\Domain\DataObject\Rule;
 use App\Contract\DataObject\Denormalizable;
 use App\Contract\DataObject\Normalizable;
 use App\Contract\DataObject\RuleInterface;
+use App\Contract\DataObject\TimeBoundedRuleInterface;
 use App\Domain\Enum\Rule\Period;
 use App\Domain\Enum\RuleType;
 
-final class Quota implements Normalizable, Denormalizable, RuleInterface
+final class Quota implements Normalizable, Denormalizable, RuleInterface, TimeBoundedRuleInterface
 {
     /**
      * @param string[]|null $roles

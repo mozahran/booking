@@ -4,25 +4,27 @@ declare(strict_types=1);
 
 namespace App\Utils;
 
+use DateTimeInterface;
+
 class TimeDiff
 {
     public static function minutes(
-        \DateTimeInterface $first,
-        ?\DateTimeInterface $second = null,
+        DateTimeInterface $first,
+        ?DateTimeInterface $second = null,
     ): int {
         return intval(self::diff($first, $second) / 60);
     }
 
     public static function hours(
-        \DateTimeInterface $first,
-        ?\DateTimeInterface $second = null,
+        DateTimeInterface $first,
+        ?DateTimeInterface $second = null,
     ): int {
         return intval(self::diff($first, $second) / 3600);
     }
 
     public static function days(
-        \DateTimeInterface $first,
-        ?\DateTimeInterface $second = null,
+        DateTimeInterface $first,
+        ?DateTimeInterface $second = null,
     ): int {
         return intval(self::diff($first, $second) / 86400);
     }

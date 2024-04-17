@@ -13,6 +13,8 @@ use App\Domain\DataObject\Booking\TimeRange;
 use App\Domain\DataObject\Rule\Buffer;
 use App\Domain\Exception\InvalidTimeRangeException;
 use App\Domain\Exception\RuleViolationException;
+use App\Utils\RuleViolationList;
+use DateTime;
 
 final class BufferRuleValidator implements RuleValidatorInterface
 {
@@ -21,14 +23,14 @@ final class BufferRuleValidator implements RuleValidatorInterface
     ) {
     }
 
+    /**
+     * @throws InvalidTimeRangeException
+     */
     public function validate(
         Booking $booking,
         Buffer|RuleInterface $rule,
-    ): array {
-        if ($this->shouldIgnoreValidator($rule, $booking)) {
-            return [];
-        }
-
+    ): RuleViolationList {
+        $ruleViolationList = RuleViolationList::create();
         $value = $rule->getValue();
         $timeRanges = [];
         $occurrences = $booking->getOccurrences()->items();
@@ -41,23 +43,14 @@ final class BufferRuleValidator implements RuleValidatorInterface
             timeRanges: $timeRanges,
         );
 
+        // TODO: create a RuleViolationException for each conflicting occurrences
         if ($bufferConflicts > 0) {
-            return [
-                RuleViolationException::buffer($value),
-            ];
+            $ruleViolationList->add(
+                violation: RuleViolationException::buffer($value),
+            );
         }
 
-        return [];
-    }
-
-    private function shouldIgnoreValidator(
-        Buffer $rule,
-        Booking $booking,
-    ): bool {
-        $spaceId = $booking->getSpaceId();
-        $targetSpaceIds = $rule->getSpaceIds();
-
-        return is_array($targetSpaceIds) && !in_array($spaceId, $targetSpaceIds);
+        return $ruleViolationList;
     }
 
     /**
@@ -67,12 +60,12 @@ final class BufferRuleValidator implements RuleValidatorInterface
         Occurrence $occurrence,
         int $value
     ): TimeRange {
-        $occurrenceTimeRange = $occurrence->getTimeRange();
-        $occurrenceStartsAt = $occurrenceTimeRange->getStartsAt();
-        $occurrenceEndsAt = $occurrenceTimeRange->getEndsAt();
+        $timeRange = $occurrence->getTimeRange();
+        $occurrenceStartsAt = $timeRange->getStartsAt();
+        $occurrenceEndsAt = $timeRange->getEndsAt();
         // Extend booking time by the given value from both ends
-        $startsAt = \DateTime::createFromImmutable($occurrenceStartsAt)->modify(sprintf('-%d minutes', $value));
-        $endsAt = \DateTime::createFromImmutable($occurrenceEndsAt)->modify(sprintf('+%d minutes', $value));
+        $startsAt = DateTime::createFromImmutable($occurrenceStartsAt)->modify(sprintf('-%d minutes', $value));
+        $endsAt = DateTime::createFromImmutable($occurrenceEndsAt)->modify(sprintf('+%d minutes', $value));
 
         return new TimeRange(
             startsAt: $startsAt->format(\DateTimeInterface::ATOM),

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\V1\Booking;
 
-use App\Contract\Service\ChronoConductorInterface;
+use App\Contract\Service\Booking\ConductorInterface;
 use App\Request\BookingRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,17 +15,17 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class CreateBookingController extends AbstractController
 {
     public function __construct(
-        private readonly ChronoConductorInterface $chronoConductor,
+        private readonly ConductorInterface $conductor,
     ) {
     }
 
     #[Route(path: '/v1/booking', name: 'app_booking_create', methods: ['POST'])]
     #[IsGranted('MANAGE_BOOKING', subject: 'request', message: 'Access Denied!')]
     public function __invoke(
-        BookingRequest $request,
+        BookingRequest $bookingRequest,
     ): JsonResponse {
-        $booking = $this->chronoConductor->createOrUpdate(
-            request: $request,
+        $booking = $this->conductor->upsert(
+            bookingRequest: $bookingRequest,
             userId: $this->getUser()->getId(),
         );
 

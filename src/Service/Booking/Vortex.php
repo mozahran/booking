@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Service\Booking;
 
 use App\Contract\Repository\BookingRepositoryInterface;
 use App\Contract\Repository\OccurrenceRepositoryInterface;
 use App\Contract\Resolver\OccurrenceResolverInterface;
-use App\Contract\Service\ChronoVortexInterface;
+use App\Contract\Service\Booking\VortexInterface;
 use App\Domain\Exception\OccurrenceNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-final class ChronoVortex implements ChronoVortexInterface
+final class Vortex implements VortexInterface
 {
     public function __construct(
         private OccurrenceResolverInterface $occurrenceResolver,

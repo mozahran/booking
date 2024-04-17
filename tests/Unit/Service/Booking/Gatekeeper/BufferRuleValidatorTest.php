@@ -10,9 +10,8 @@ use App\Domain\Exception\RuleViolationException;
 use App\Repository\BookingRepository;
 use App\Service\Gatekeeper;
 use App\Tests\Utils\TestBookingFactory;
+use App\Utils\DateSmith;
 use App\Validator\BufferRuleValidator;
-use DateTimeImmutable;
-use DateTimeInterface;
 use Generator;
 use PHPUnit\Framework\MockObject\Exception;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -26,24 +25,20 @@ class BufferRuleValidatorTest extends KernelTestCase
         bool $throwsException,
         array $params,
     ) {
-        $gatekeeper = $this->getGatekeeper($params);
-
         if (true === $throwsException) {
             $this->expectException(RuleViolationException::class);
         } else {
             $this->expectNotToPerformAssertions();
         }
 
-        $now = new DateTimeImmutable();
-        $afterAnHour = new DateTimeImmutable('+1 hour');
-
         $newBooking = TestBookingFactory::createSingleOccurrenceBooking(
-            startsAt: $now->format(DateTimeInterface::ATOM),
-            endsAt: $afterAnHour->format(DateTimeInterface::ATOM),
-            spaceId: $params['bookingSpaceId'],
+            startsAt: $params['startsAt'],
+            endsAt: $params['endsAt'],
+            spaceId: $params['spaceId'],
+            userId: $params['userId'],
         );
 
-        $gatekeeper->validate(
+        $this->getGatekeeper($params)->validate(
             rules: $params['rules'],
             booking: $newBooking,
         );
@@ -57,7 +52,10 @@ class BufferRuleValidatorTest extends KernelTestCase
         yield 'CASE #01, throws exception, space matches' => [
             'throwsException' => true,
             'params' => [
-                'bookingSpaceId' => 1,
+                'startsAt' => DateSmith::withTime(22, 0),
+                'endsAt' => DateSmith::withTime(23, 0),
+                'spaceId' => 1,
+                'userId' => 1,
                 'hasBufferConflict' => true,
                 'rules' => [
                     $ruleSmith->parse(
@@ -71,7 +69,10 @@ class BufferRuleValidatorTest extends KernelTestCase
         yield 'CASE #02, no exception, space mismatches' => [
             'throwsException' => false,
             'params' => [
-                'bookingSpaceId' => 1,
+                'startsAt' => DateSmith::withTime(22, 0),
+                'endsAt' => DateSmith::withTime(23, 0),
+                'spaceId' => 1,
+                'userId' => 1,
                 'hasBufferConflict' => true,
                 'rules' => [
                     $ruleSmith->parse(
@@ -82,10 +83,13 @@ class BufferRuleValidatorTest extends KernelTestCase
             ],
         ];
 
-        yield 'CASE #02, no exception, space matches' => [
+        yield 'CASE #03, no exception, space matches' => [
             'throwsException' => false,
             'params' => [
-                'bookingSpaceId' => 1,
+                'startsAt' => DateSmith::withTime(22, 0),
+                'endsAt' => DateSmith::withTime(23, 0),
+                'spaceId' => 1,
+                'userId' => 1,
                 'hasBufferConflict' => false,
                 'rules' => [
                     $ruleSmith->parse(

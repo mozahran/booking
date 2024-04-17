@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Exception;
 
+use App\Contract\DataObject\TimeBoundedRuleInterface;
 use App\Domain\DataObject\Booking\Occurrence;
 use App\Domain\DataObject\Booking\TimeRange;
-use App\Domain\DataObject\Rule\Availability;
+use App\Domain\Enum\Rule\Operator;
 use App\Domain\Enum\Rule\Predicate;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -19,7 +20,7 @@ class RuleViolationException extends \Exception
 
     public static function outsideAllowedTimeRange(
         Occurrence $occurrence,
-        Availability $rule,
+        TimeBoundedRuleInterface $rule,
     ): self {
         $message = sprintf(
             'Occurrence must be between %s and %s. Slot %s is not possible.',
@@ -33,9 +34,9 @@ class RuleViolationException extends \Exception
         );
     }
 
-    public static function outsideAllowedDayRange(
+    public static function outsideAllowedWeekays(
         Occurrence $occurrence,
-        Availability $rule,
+        TimeBoundedRuleInterface $rule,
     ): self {
         $message = sprintf(
             'Occurrences on %s is not allowed.',
@@ -49,7 +50,10 @@ class RuleViolationException extends \Exception
 
     public static function windowLessThan(int $value): self
     {
-        $message = sprintf('You cannot book a slot before %d hour(s) from start time', $value / Predicate::LESS_THAN->coefficient());
+        $message = sprintf(
+            'You cannot book a slot before %d hour(s) from start time',
+            $value / Predicate::LESS_THAN->coefficient()
+        );
 
         return new self(
             message: $message,
@@ -58,7 +62,10 @@ class RuleViolationException extends \Exception
 
     public static function windowMoreThanStrict(int $value): self
     {
-        $message = sprintf('You cannot book a slot before exactly %d hour(s) from start time', $value / Predicate::MORE_THAN_STRICT->coefficient());
+        $message = sprintf(
+            'You cannot book a slot before exactly %d hour(s) from start time',
+            $value / Predicate::MORE_THAN_STRICT->coefficient()
+        );
 
         return new self(
             message: $message,
@@ -67,7 +74,10 @@ class RuleViolationException extends \Exception
 
     public static function windowMoreThanIncludingToday(int $value): self
     {
-        $message = sprintf('You cannot book a slot before %d day(s) including today from start time', $value / Predicate::MORE_THAN_INCLUDING_TODAY->coefficient());
+        $message = sprintf(
+            'You cannot book a slot before %d day(s) including today from start time',
+            $value / Predicate::MORE_THAN_INCLUDING_TODAY->coefficient()
+        );
 
         return new self(
             message: $message,
@@ -81,5 +91,56 @@ class RuleViolationException extends \Exception
         return new self(
             message: $message,
         );
+    }
+
+    public static function durationIs(Operator $operator, mixed $value): self
+    {
+        $message = sprintf(
+            'You cannot book a slot for a duration that is %s %s.',
+            $operator->caption(),
+            self::valueToString($value),
+        );
+
+        return new self(
+            message: $message,
+        );
+    }
+
+    public static function intervalFromMidnight(Operator $operator, mixed $value): self
+    {
+        $message = sprintf(
+            'You cannot book a slot after midnight that is %s %s minutes.',
+            $operator->caption(),
+            self::valueToString($value),
+        );
+
+        return new self(
+            message: $message,
+        );
+    }
+
+    public static function intervalToMidnight(Operator $operator, mixed $value): self
+    {
+        $message = sprintf(
+            'You cannot book a slot with an interval that is %s %s minutes to midnight.',
+            $operator->caption(),
+            self::valueToString($value),
+        );
+
+        return new self(
+            message: $message,
+        );
+    }
+
+    public static function userRoles(): self
+    {
+        return new self(
+            message: 'You cannot book a slot with your set of roles.',
+        );
+    }
+
+    private static function valueToString(mixed $value): string
+    {
+        return is_array($value) ? '['.implode(', ', $value).']' : strval($value);
     }
 }

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Booking;
 
 use App\Builder\BookingBuilder;
 use App\Builder\OccurrenceSetBuilder;
 use App\Contract\Persistor\BookingPersistorInterface;
 use App\Contract\Repository\OccurrenceRepositoryInterface;
 use App\Contract\Resolver\BookingResolverInterface;
-use App\Contract\Service\ChronoConductorInterface;
+use App\Contract\Service\Booking\ConductorInterface;
 use App\Contract\Service\JanitorInterface;
 use App\Domain\DataObject\Booking\Booking;
 use App\Domain\DataObject\Booking\RecurrenceRule;
@@ -16,8 +16,9 @@ use App\Domain\DataObject\Set\OccurrenceSet;
 use App\Domain\Exception\TimeSlotNotAvailableException;
 use App\Request\BookingRequest;
 use Doctrine\ORM\EntityManagerInterface;
+use Throwable;
 
-final class ChronoConductor implements ChronoConductorInterface
+final class Conductor implements ConductorInterface
 {
     public function __construct(
         private BookingResolverInterface $bookingResolver,
@@ -28,20 +29,20 @@ final class ChronoConductor implements ChronoConductorInterface
     ) {
     }
 
-    public function createOrUpdate(
-        BookingRequest $request,
-        ?int $userId = null,
+    public function upsert(
+        BookingRequest $bookingRequest,
+        int $userId = null,
     ): Booking {
-        $request->validate();
+        $bookingRequest->validate();
 
         $booking = null;
-        if ($request->getBookingId()) {
-            $booking = $this->bookingResolver->resolve(id: $request->getBookingId());
+        if ($bookingRequest->getBookingId()) {
+            $booking = $this->bookingResolver->resolve(id: $bookingRequest->getBookingId());
         }
 
         $existingOccurrenceSet = $this->getExistingOccurrences($booking);
-        $timeRange = TimeRange::fromRequest($request);
-        $recurrenceRule = $this->createRecurrenceRule($request, $booking);
+        $timeRange = TimeRange::fromRequest($bookingRequest);
+        $recurrenceRule = $this->createRecurrenceRule($bookingRequest, $booking);
 
         $occurrenceSet = (new OccurrenceSetBuilder())
             ->setExistingOccurrences($existingOccurrenceSet)
@@ -51,14 +52,15 @@ final class ChronoConductor implements ChronoConductorInterface
 
         $booking = (new BookingBuilder())
             ->setId($booking?->getId())
-            ->setSpaceId($booking?->getSpaceId() ?? $request->getSpaceId())
+            ->setSpaceId($booking?->getSpaceId() ?? $bookingRequest->getSpaceId())
             ->setUserId($booking?->getUserId() ?? $userId)
             ->setTimeRange($timeRange)
             ->setRecurrenceRule($recurrenceRule)
             ->setOccurrenceSet($occurrenceSet)
             ->build();
 
-        $this->validate($booking);
+        $this->validateTimeslots($booking);
+
         $this->entityManager->beginTransaction();
         try {
             $booking = $this->bookingPersistor->persist($booking);
@@ -69,7 +71,7 @@ final class ChronoConductor implements ChronoConductorInterface
             $this->entityManager->commit();
 
             return $booking;
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->entityManager->rollback();
             throw $exception;
         }
@@ -78,7 +80,7 @@ final class ChronoConductor implements ChronoConductorInterface
     /**
      * @throws TimeSlotNotAvailableException
      */
-    private function validate(
+    private function validateTimeslots(
         Booking $booking,
     ): void {
         if ($booking->getOccurrences()->isEmpty()) {

@@ -11,15 +11,15 @@ use App\Domain\Enum\Rule\Operator;
 final class Condition implements Normalizable
 {
     public function __construct(
-        private readonly Operand $Operand,
+        private readonly Operand $operand,
         private readonly Operator $operator,
-        private readonly int $value,
+        private readonly mixed $value,
     ) {
     }
 
     public function getOperand(): Operand
     {
-        return $this->Operand;
+        return $this->operand;
     }
 
     public function getOperator(): Operator
@@ -27,7 +27,7 @@ final class Condition implements Normalizable
         return $this->operator;
     }
 
-    public function getValue(): int
+    public function getValue(): mixed
     {
         return $this->value;
     }

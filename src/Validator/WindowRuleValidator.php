@@ -12,26 +12,23 @@ use App\Domain\DataObject\Rule\Window;
 use App\Domain\Enum\Rule\Predicate;
 use App\Domain\Exception\RuleViolationException;
 use App\Domain\Exception\UserNotFoundException;
+use App\Utils\RuleViolationList;
 use App\Utils\TimeDiff;
 
 final class WindowRuleValidator implements RuleValidatorInterface
 {
-    private const MINUTES_IN_DAY = 1440;
-
     public function __construct(
         private readonly UserResolverInterface $userResolver,
     ) {
     }
 
-    /**
-     * @throws UserNotFoundException
-     */
     public function validate(
         Booking $booking,
         Window|RuleInterface $rule,
-    ): array {
-        if ($this->shouldIgnoreValidation($rule, $booking)) {
-            return [];
+    ): RuleViolationList {
+        $ruleViolationList = RuleViolationList::create();
+        if ($this->isNotApplicableToBookingUser(rule: $rule, booking: $booking)) {
+            return $ruleViolationList;
         }
 
         try {
@@ -41,44 +38,25 @@ final class WindowRuleValidator implements RuleValidatorInterface
                 Predicate::MORE_THAN_INCLUDING_TODAY => $this->validateMoreThanIncludingToday($rule, $booking),
             };
         } catch (RuleViolationException $exception) {
-            return [$exception];
+            $ruleViolationList->add($exception);
         }
 
-        return [];
+        return $ruleViolationList;
     }
 
-    /**
-     * @throws UserNotFoundException
-     */
-    private function shouldIgnoreValidation(
+    private function isNotApplicableToBookingUser(
         Window $rule,
         Booking $booking,
     ): bool {
-        return $this->shouldBeIgnoredIfBookingSpaceIsNotTargeted($rule, $booking)
-            || $this->shouldBeIgnoredIfBookingUserIsNotTargeted($rule, $booking);
-    }
-
-    private function shouldBeIgnoredIfBookingSpaceIsNotTargeted(
-        Window $rule,
-        Booking $booking,
-    ): bool {
-        $spaceIds = $rule->getSpaceIds();
-
-        return is_array($spaceIds) && !in_array($booking->getSpaceId(), $spaceIds);
-    }
-
-    /**
-     * @throws UserNotFoundException
-     */
-    private function shouldBeIgnoredIfBookingUserIsNotTargeted(
-        Window $rule,
-        Booking $booking,
-    ): bool {
-        if (false === is_array($rule->getRoles())) {
+        if (null === $rule->getRoles()) {
             return false;
         }
 
-        $user = $this->userResolver->resolve(id: $booking->getUserId());
+        try {
+            $user = $this->userResolver->resolve(id: $booking->getUserId());
+        } catch (UserNotFoundException) {
+            return false;
+        }
 
         return 0 === count(array_intersect($rule->getRoles(), $user->getRoles()));
     }
@@ -86,8 +64,10 @@ final class WindowRuleValidator implements RuleValidatorInterface
     /**
      * @throws RuleViolationException
      */
-    private function validateLessThan(Window $rule, Booking $booking): void
-    {
+    private function validateLessThan(
+        Window $rule,
+        Booking $booking,
+    ): void {
         $value = $rule->getValue() * $rule->getPredicate()->coefficient();
         $diffInMinutes = TimeDiff::minutes($booking->getTimeRange()->getStartsAt());
         if ($diffInMinutes >= $value) {
@@ -100,8 +80,10 @@ final class WindowRuleValidator implements RuleValidatorInterface
     /**
      * @throws RuleViolationException
      */
-    private function validateMoreThanStrict(Window $rule, Booking $booking): void
-    {
+    private function validateMoreThanStrict(
+        Window $rule,
+        Booking $booking,
+    ): void {
         $value = $rule->getValue() * $rule->getPredicate()->coefficient();
         $diffInMinutes = TimeDiff::minutes($booking->getTimeRange()->getStartsAt());
         if ($diffInMinutes > $value) {
@@ -114,8 +96,10 @@ final class WindowRuleValidator implements RuleValidatorInterface
     /**
      * @throws RuleViolationException
      */
-    private function validateMoreThanIncludingToday(Window $rule, Booking $booking): void
-    {
+    private function validateMoreThanIncludingToday(
+        Window $rule,
+        Booking $booking,
+    ): void {
         $value = $rule->getValue() * $rule->getPredicate()->coefficient();
         $diffInMinutes = TimeDiff::minutes($booking->getTimeRange()->getStartsAt());
         if ($diffInMinutes < $value) {

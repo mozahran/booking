@@ -11,7 +11,7 @@ enum Predicate: int
     case MORE_THAN_INCLUDING_TODAY = 3; // target: days
 
     private const MINUTES_IN_HOUR = 60;
-    private const MINUTES_IN_DAY = 1440;
+    public const MINUTES_IN_DAY = 1440;
     private const MINUTES_IN_TWO_DAYS = 2880;
 
     public function coefficient(): int

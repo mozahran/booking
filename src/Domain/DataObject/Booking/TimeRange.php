@@ -7,14 +7,17 @@ namespace App\Domain\DataObject\Booking;
 use App\Contract\DataObject\Normalizable;
 use App\Contract\Request\TimeRangeAware;
 use App\Domain\Exception\InvalidTimeRangeException;
+use DateTimeImmutable;
+use Exception;
 
 final class TimeRange implements Normalizable
 {
     public const SHORT_FORMAT = 'Y-m-d H:i';
     public const DATE_FORMAT = 'Y-m-d';
+    const SHORT_TIME_FORMAT = 'H:i';
 
-    private \DateTimeImmutable $startsAt;
-    private \DateTimeImmutable $endsAt;
+    private DateTimeImmutable $startsAt;
+    private DateTimeImmutable $endsAt;
 
     /**
      * @throws InvalidTimeRangeException
@@ -27,13 +30,13 @@ final class TimeRange implements Normalizable
             if ('' === $startsAt || '' === $endsAt) {
                 throw new InvalidTimeRangeException('Start & end time must be set!');
             }
-            $this->startsAt = new \DateTimeImmutable($startsAt);
-            $this->endsAt = new \DateTimeImmutable($endsAt);
+            $this->startsAt = new DateTimeImmutable($startsAt);
+            $this->endsAt = new DateTimeImmutable($endsAt);
             if ($this->endsAt < $this->startsAt) {
                 throw new InvalidTimeRangeException('End time cannot be older than start time!');
             }
-        } catch (\Exception) {
-            throw new InvalidTimeRangeException('Invalid time range!');
+        } catch (Exception $exception) {
+            throw new InvalidTimeRangeException($exception->getMessage());
         }
     }
 
@@ -49,7 +52,7 @@ final class TimeRange implements Normalizable
         );
     }
 
-    public function getStartsAt(): \DateTimeImmutable
+    public function getStartsAt(): DateTimeImmutable
     {
         return $this->startsAt;
     }
@@ -69,7 +72,7 @@ final class TimeRange implements Normalizable
         return $this->getStartsAt()->format('H:i:00');
     }
 
-    public function getEndsAt(): \DateTimeImmutable
+    public function getEndsAt(): DateTimeImmutable
     {
         return $this->endsAt;
     }
