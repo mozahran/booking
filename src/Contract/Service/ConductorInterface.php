@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Contract\Service\Booking;
+namespace App\Contract\Service;
 
 use App\Domain\DataObject\Booking\Booking;
 use App\Domain\Exception\AppException;
@@ -11,7 +11,6 @@ use App\Domain\Exception\SpaceNotFoundException;
 use App\Domain\Exception\TimeSlotNotAvailableException;
 use App\Domain\Exception\UserNotFoundException;
 use App\Request\BookingRequest;
-use Throwable;
 
 interface ConductorInterface
 {
@@ -22,7 +21,6 @@ interface ConductorInterface
      * @throws BookingNotFoundException
      * @throws OccurrenceNotFoundException
      * @throws TimeSlotNotAvailableException
-     * @throws Throwable
      * @throws AppException
      */
     public function upsert(

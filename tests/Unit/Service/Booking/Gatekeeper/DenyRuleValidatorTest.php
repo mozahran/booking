@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Service\Booking\Gatekeeper;
 
 use App\Contract\Resolver\UserResolverInterface;
-use App\Contract\Service\Booking\TimeWardenInterface;
+use App\Contract\Service\TimeWardenInterface;
 use App\Domain\DataObject\Rule\Condition;
 use App\Domain\DataObject\Rule\ConditionGroup;
 use App\Domain\DataObject\Rule\Deny;
@@ -17,7 +17,7 @@ use App\Service\Gatekeeper;
 use App\Tests\Utils\TestBookingFactory;
 use App\Utils\DateSmith;
 use App\Utils\RuleViolationList;
-use App\Validator\DenyRuleValidator;
+use App\Validator\Rule\DenyRuleValidator;
 use Generator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -30,8 +30,6 @@ class DenyRuleValidatorTest extends KernelTestCase
         bool $throwsException,
         array $params,
     ) {
-        $gatekeeper = $this->getGatekeeper(params: $params);
-
         if (true === $throwsException) {
             $this->expectException(RuleViolationException::class);
         } else {
@@ -45,7 +43,7 @@ class DenyRuleValidatorTest extends KernelTestCase
             userId: $params['userId'],
         );
 
-        $gatekeeper->validate(
+        $this->getGatekeeper(params: $params)->validate(
             rules: $params['rules'],
             booking: $booking,
         );

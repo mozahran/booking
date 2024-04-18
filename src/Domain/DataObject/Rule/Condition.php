@@ -8,12 +8,12 @@ use App\Contract\DataObject\Normalizable;
 use App\Domain\Enum\Rule\Operand;
 use App\Domain\Enum\Rule\Operator;
 
-final class Condition implements Normalizable
+final readonly class Condition implements Normalizable
 {
     public function __construct(
-        private readonly Operand $operand,
-        private readonly Operator $operator,
-        private readonly mixed $value,
+        private Operand $operand,
+        private Operator $operator,
+        private mixed $value,
     ) {
     }
 

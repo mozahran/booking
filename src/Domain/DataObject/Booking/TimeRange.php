@@ -10,7 +10,7 @@ use App\Domain\Exception\InvalidTimeRangeException;
 use DateTimeImmutable;
 use Exception;
 
-final class TimeRange implements Normalizable
+final readonly class TimeRange implements Normalizable
 {
     public const SHORT_FORMAT = 'Y-m-d H:i';
     public const DATE_FORMAT = 'Y-m-d';

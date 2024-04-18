@@ -6,7 +6,7 @@ namespace App\Domain\DataObject;
 
 use App\Domain\Enum\UserRole;
 
-final class ProviderUserData
+final readonly class ProviderUserData
 {
     public function __construct(
         private int $providerId,

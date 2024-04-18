@@ -7,7 +7,7 @@ namespace App\Domain\DataObject;
 use App\Contract\DataObject\Identifiable;
 use App\Contract\DataObject\Normalizable;
 
-final class User implements Normalizable, Identifiable
+final readonly class User implements Normalizable, Identifiable
 {
     /**
      * @param string[] $roles

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\V1\Booking;
 
-use App\Contract\Service\Booking\VortexInterface;
+use App\Contract\Service\VortexInterface;
 use App\Domain\Enum\CancellationIntent;
 use App\Domain\Exception\AccessDeniedException;
 use App\Domain\Exception\DataMismatchException;

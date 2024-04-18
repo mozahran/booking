@@ -15,7 +15,7 @@ use App\Entity\UserEntity;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 
-final class OccurrenceTranslator implements OccurrenceTranslatorInterface
+final readonly class OccurrenceTranslator implements OccurrenceTranslatorInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,

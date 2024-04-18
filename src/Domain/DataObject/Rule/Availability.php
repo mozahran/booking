@@ -10,16 +10,16 @@ use App\Contract\DataObject\RuleInterface;
 use App\Contract\DataObject\TimeBoundedRuleInterface;
 use App\Domain\Enum\RuleType;
 
-final class Availability implements Normalizable, Denormalizable, RuleInterface, TimeBoundedRuleInterface
+final readonly class Availability implements Normalizable, Denormalizable, RuleInterface, TimeBoundedRuleInterface
 {
     /**
      * @param int[]|null $spaceIds
      */
     public function __construct(
-        private readonly int $daysBitmask,
-        private readonly int $startMinutes,
-        private readonly int $endMinutes,
-        private readonly ?array $spaceIds = null,
+        private int $daysBitmask,
+        private int $startMinutes,
+        private int $endMinutes,
+        private ?array $spaceIds = null,
     ) {
     }
 

@@ -9,11 +9,11 @@ use App\Contract\DataObject\Normalizable;
 use App\Contract\DataObject\RuleInterface;
 use App\Domain\Enum\RuleType;
 
-final class Buffer implements Normalizable, Denormalizable, RuleInterface
+final readonly class Buffer implements Normalizable, Denormalizable, RuleInterface
 {
     private function __construct(
-        private readonly int $value,
-        private readonly ?array $spaceIds = null,
+        private int $value,
+        private ?array $spaceIds = null,
     ) {
     }
 

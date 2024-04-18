@@ -4,7 +4,7 @@ namespace App\Utils;
 
 use DateTimeImmutable;
 
-final class DateSmith
+final readonly class DateSmith
 {
     public static function now(): DateTimeImmutable
     {

@@ -11,20 +11,20 @@ use App\Contract\DataObject\TimeBoundedRuleInterface;
 use App\Domain\Enum\Rule\Period;
 use App\Domain\Enum\RuleType;
 
-final class Quota implements Normalizable, Denormalizable, RuleInterface, TimeBoundedRuleInterface
+final readonly class Quota implements Normalizable, Denormalizable, RuleInterface, TimeBoundedRuleInterface
 {
     /**
      * @param string[]|null $roles
      * @param int[]|null    $spaceIds
      */
     public function __construct(
-        private readonly int $daysBitmask,
-        private readonly int $startMinutes,
-        private readonly int $endMinutes,
-        private readonly int $value,
-        private readonly Period $period,
-        private readonly ?array $roles = null,
-        private readonly ?array $spaceIds = null,
+        private int $daysBitmask,
+        private int $startMinutes,
+        private int $endMinutes,
+        private int $value,
+        private Period $period,
+        private ?array $roles = null,
+        private ?array $spaceIds = null,
     ) {
     }
 

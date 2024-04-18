@@ -2,7 +2,7 @@
 
 namespace App\Tests\Functional\Controller\V1\Booking;
 
-use App\Utils\Testing\HasAuthenticatedClient;
+use App\Tests\Utils\HasAuthenticatedClient;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ShowBookingControllerTest extends WebTestCase

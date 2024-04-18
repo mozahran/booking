@@ -9,7 +9,7 @@ use App\Contract\Translator\OccurrenceTranslatorInterface;
 use App\Domain\DataObject\Booking\Booking;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class BookingPersistor implements BookingPersistorInterface
+final readonly class BookingPersistor implements BookingPersistorInterface
 {
     public function __construct(
         private BookingResolverInterface $bookingResolver,

@@ -9,7 +9,7 @@ use App\Domain\Exception\ProviderNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 
-final class ProviderPersistor implements ProviderPersistorInterface
+final readonly class ProviderPersistor implements ProviderPersistorInterface
 {
     public function __construct(
         private ProviderTranslatorInterface $providerTranslator,

@@ -15,13 +15,6 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class WindowRuleTest extends KernelTestCase
 {
-    private GatekeeperInterface $gatekeeper;
-
-    protected function setUp(): void
-    {
-        $this->gatekeeper = $this->getContainer()->get(GatekeeperInterface::class);
-    }
-
     /**
      * @dataProvider dataProviderForTestRule
      */
@@ -61,7 +54,8 @@ class WindowRuleTest extends KernelTestCase
             ->setUserId($userId)
             ->build();
 
-        $this->gatekeeper->validate(
+        $gatekeeper = $this->getContainer()->get(GatekeeperInterface::class);
+        $gatekeeper->validate(
             rules: $rules,
             booking: $booking,
         );

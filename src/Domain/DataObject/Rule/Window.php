@@ -10,17 +10,17 @@ use App\Contract\DataObject\RuleInterface;
 use App\Domain\Enum\Rule\Predicate;
 use App\Domain\Enum\RuleType;
 
-final class Window implements Normalizable, Denormalizable, RuleInterface
+final readonly class Window implements Normalizable, Denormalizable, RuleInterface
 {
     /**
      * @param string[]|null $roles
      * @param int[]|null    $spaceIds
      */
     public function __construct(
-        private readonly Predicate $predicate,
-        private readonly int $value,
-        private readonly ?array $roles = null,
-        private readonly ?array $spaceIds = null,
+        private Predicate $predicate,
+        private int $value,
+        private ?array $roles = null,
+        private ?array $spaceIds = null,
     ) {
     }
 

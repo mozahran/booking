@@ -12,7 +12,7 @@ use App\Entity\WorkspaceEntity;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 
-final class SpaceTranslator implements SpaceTranslatorInterface
+final readonly class SpaceTranslator implements SpaceTranslatorInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,

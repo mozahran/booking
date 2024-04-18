@@ -14,7 +14,7 @@ use App\Entity\WorkspaceEntity;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 
-final class WorkspaceTranslator implements WorkspaceTranslatorInterface
+final readonly class WorkspaceTranslator implements WorkspaceTranslatorInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,

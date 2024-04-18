@@ -6,7 +6,7 @@ namespace App\Domain\DataObject\Booking;
 
 use App\Contract\DataObject\Normalizable;
 
-final class Status implements Normalizable
+final readonly class Status implements Normalizable
 {
     public function __construct(
         private bool $cancelled,

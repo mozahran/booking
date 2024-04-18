@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\V1\Booking;
 
-use App\Contract\Service\Booking\ConductorInterface;
+use App\Contract\Service\ConductorInterface;
 use App\Request\BookingRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

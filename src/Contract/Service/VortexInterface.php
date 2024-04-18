@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Contract\Service\Booking;
+namespace App\Contract\Service;
 
 use App\Domain\Exception\AccessDeniedException;
 use App\Domain\Exception\DataMismatchException;

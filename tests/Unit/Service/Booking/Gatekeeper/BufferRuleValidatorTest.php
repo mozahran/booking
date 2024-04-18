@@ -11,7 +11,7 @@ use App\Repository\BookingRepository;
 use App\Service\Gatekeeper;
 use App\Tests\Utils\TestBookingFactory;
 use App\Utils\DateSmith;
-use App\Validator\BufferRuleValidator;
+use App\Validator\Rule\BufferRuleValidator;
 use Generator;
 use PHPUnit\Framework\MockObject\Exception;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

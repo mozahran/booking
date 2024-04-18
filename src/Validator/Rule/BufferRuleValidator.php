@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Validator;
+namespace App\Validator\Rule;
 
 use App\Contract\DataObject\RuleInterface;
 use App\Contract\Repository\BookingRepositoryInterface;
@@ -15,11 +15,10 @@ use App\Domain\Exception\InvalidTimeRangeException;
 use App\Domain\Exception\RuleViolationException;
 use App\Utils\RuleViolationList;
 use DateTime;
-
-final class BufferRuleValidator implements RuleValidatorInterface
+final readonly class BufferRuleValidator implements RuleValidatorInterface
 {
     public function __construct(
-        private readonly BookingRepositoryInterface $bookingRepository,
+        private BookingRepositoryInterface $bookingRepository,
     ) {
     }
 

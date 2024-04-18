@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Validator;
+namespace App\Validator\Rule;
 
 use App\Contract\DataObject\RuleInterface;
 use App\Contract\Resolver\UserResolverInterface;
-use App\Contract\Service\Booking\TimeWardenInterface;
+use App\Contract\Service\TimeWardenInterface;
 use App\Contract\Validator\RuleValidatorInterface;
 use App\Domain\DataObject\Booking\Booking;
 use App\Domain\DataObject\Rule\Condition;
@@ -18,11 +18,11 @@ use App\Domain\Exception\UserNotFoundException;
 use App\Utils\Comparator;
 use App\Utils\RuleViolationList;
 
-final class DenyRuleValidator implements RuleValidatorInterface
+final readonly class DenyRuleValidator implements RuleValidatorInterface
 {
     public function __construct(
-        private readonly UserResolverInterface $userResolver,
-        private readonly TimeWardenInterface $timeWarden,
+        private UserResolverInterface $userResolver,
+        private TimeWardenInterface $timeWarden,
     ) {
     }
 

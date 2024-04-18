@@ -10,7 +10,7 @@ use App\Domain\DataObject\Booking\Booking;
 use App\Domain\DataObject\Booking\TimeRange;
 use App\Domain\DataObject\Set\BookingSet;
 
-final class BookingResolver implements BookingResolverInterface
+final readonly class BookingResolver implements BookingResolverInterface
 {
     public function __construct(
         private BookingRepositoryInterface $bookingRepository,

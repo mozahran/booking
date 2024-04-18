@@ -4,13 +4,13 @@ namespace App\Domain\DataObject\Rule;
 
 use App\Contract\DataObject\Normalizable;
 
-final class ConditionGroup implements Normalizable
+final readonly class ConditionGroup implements Normalizable
 {
     /**
      * @param Condition[] $conditions
      */
     public function __construct(
-        private readonly array $conditions,
+        private array $conditions,
     ) {
     }
 

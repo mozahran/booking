@@ -9,11 +9,11 @@ use App\Domain\DataObject\Rule\Quota;
 use App\Domain\DataObject\Rule\Window;
 use App\Domain\Exception\RuleTypeMissingImplemenationException;
 use App\Domain\Exception\RuleTypeMissingRuleValidatorException;
-use App\Validator\AvailabilityRuleValidator;
-use App\Validator\BufferRuleValidator;
-use App\Validator\DenyRuleValidator;
-use App\Validator\QuotaRuleValidator;
-use App\Validator\WindowRuleValidator;
+use App\Validator\Rule\AvailabilityRuleValidator;
+use App\Validator\Rule\BufferRuleValidator;
+use App\Validator\Rule\DenyRuleValidator;
+use App\Validator\Rule\QuotaRuleValidator;
+use App\Validator\Rule\WindowRuleValidator;
 
 enum RuleType: string
 {

@@ -21,7 +21,7 @@ use App\Entity\UserEntity;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 
-final class BookingTranslator implements BookingTranslatorInterface
+final readonly class BookingTranslator implements BookingTranslatorInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,

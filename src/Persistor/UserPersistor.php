@@ -10,7 +10,7 @@ use App\Domain\Exception\UserNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 
-final class UserPersistor implements UserPersistorInterface
+final readonly class UserPersistor implements UserPersistorInterface
 {
     public function __construct(
         private UserTranslatorInterface $userTranslator,

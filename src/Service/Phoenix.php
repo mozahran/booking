@@ -12,7 +12,7 @@ use App\Domain\DataObject\Space;
 use App\Domain\DataObject\User;
 use App\Domain\DataObject\Workspace;
 
-final class Phoenix implements PhoenixInterface
+final readonly class Phoenix implements PhoenixInterface
 {
     public function __construct(
         private ProviderRepositoryInterface $providerRepository,

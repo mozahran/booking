@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Contract\Service\Booking;
+namespace App\Contract\Service;
 
 use App\Contract\DataObject\TimeBoundedRuleInterface;
 use App\Domain\DataObject\Booking\Booking;

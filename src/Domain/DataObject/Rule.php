@@ -5,7 +5,7 @@ namespace App\Domain\DataObject;
 use App\Contract\DataObject\Normalizable;
 use App\Domain\Enum\RuleType;
 
-final class Rule implements Normalizable
+final readonly class Rule implements Normalizable
 {
     public function __construct(
         private int $spaceId,

@@ -10,18 +10,18 @@ use App\Contract\DataObject\RuleInterface;
 use App\Contract\DataObject\TimeBoundedRuleInterface;
 use App\Domain\Enum\RuleType;
 
-final class Deny implements Normalizable, Denormalizable, RuleInterface, TimeBoundedRuleInterface
+final readonly class Deny implements Normalizable, Denormalizable, RuleInterface, TimeBoundedRuleInterface
 {
     /**
      * @param ConditionGroup[] $conditionGroups
      * @param int[]|null       $spaceIds
      */
     public function __construct(
-        private readonly int $daysBitmask,
-        private readonly int $startMinutes,
-        private readonly int $endMinutes,
-        private readonly array $conditionGroups,
-        private readonly ?array $spaceIds = null,
+        private int $daysBitmask,
+        private int $startMinutes,
+        private int $endMinutes,
+        private array $conditionGroups,
+        private ?array $spaceIds = null,
     ) {
     }
 

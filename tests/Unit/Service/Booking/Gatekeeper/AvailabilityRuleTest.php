@@ -13,13 +13,6 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class AvailabilityRuleTest extends KernelTestCase
 {
-    private GatekeeperInterface $gatekeeper;
-
-    protected function setUp(): void
-    {
-        $this->gatekeeper = $this->getContainer()->get(GatekeeperInterface::class);
-    }
-
     /**
      * @dataProvider dataProviderForTestRule
      */
@@ -40,7 +33,8 @@ class AvailabilityRuleTest extends KernelTestCase
             userId: $params['userId'],
         );
 
-        $this->gatekeeper->validate(
+        $gatekeeper = $this->getContainer()->get(GatekeeperInterface::class);
+        $gatekeeper->validate(
             rules: $params['rules'],
             booking: $booking,
         );

@@ -9,9 +9,10 @@ use App\Domain\DataObject\Booking\Occurrence;
 use App\Domain\DataObject\Booking\TimeRange;
 use App\Domain\Enum\Rule\Operator;
 use App\Domain\Enum\Rule\Predicate;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
-class RuleViolationException extends \Exception
+class RuleViolationException extends Exception
 {
     public function __construct(string $message)
     {

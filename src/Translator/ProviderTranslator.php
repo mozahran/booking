@@ -12,7 +12,7 @@ use App\Entity\UserEntity;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 
-final class ProviderTranslator implements ProviderTranslatorInterface
+final readonly class ProviderTranslator implements ProviderTranslatorInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,

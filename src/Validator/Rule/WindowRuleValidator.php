@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Validator;
+namespace App\Validator\Rule;
 
 use App\Contract\DataObject\RuleInterface;
 use App\Contract\Resolver\UserResolverInterface;
@@ -15,10 +15,10 @@ use App\Domain\Exception\UserNotFoundException;
 use App\Utils\RuleViolationList;
 use App\Utils\TimeDiff;
 
-final class WindowRuleValidator implements RuleValidatorInterface
+final readonly class WindowRuleValidator implements RuleValidatorInterface
 {
     public function __construct(
-        private readonly UserResolverInterface $userResolver,
+        private UserResolverInterface $userResolver,
     ) {
     }
 

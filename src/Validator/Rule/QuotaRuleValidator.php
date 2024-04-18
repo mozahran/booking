@@ -2,20 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Validator;
+namespace App\Validator\Rule;
 
 use App\Contract\DataObject\RuleInterface;
-use App\Contract\Service\Booking\TimeWardenInterface;
+use App\Contract\Service\TimeWardenInterface;
 use App\Contract\Validator\RuleValidatorInterface;
 use App\Domain\DataObject\Booking\Booking;
 use App\Domain\DataObject\Rule\Quota;
-use App\Domain\Exception\RuleViolationException;
 use App\Utils\RuleViolationList;
 
-final class QuotaRuleValidator implements RuleValidatorInterface
+final readonly class QuotaRuleValidator implements RuleValidatorInterface
 {
     public function __construct(
-        private readonly TimeWardenInterface $timeWarden,
+        private TimeWardenInterface $timeWarden,
     ) {
     }
 

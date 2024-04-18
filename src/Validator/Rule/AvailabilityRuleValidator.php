@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Validator;
+namespace App\Validator\Rule;
 
 use App\Contract\DataObject\RuleInterface;
-use App\Contract\Service\Booking\TimeWardenInterface;
+use App\Contract\Service\TimeWardenInterface;
 use App\Contract\Validator\RuleValidatorInterface;
 use App\Domain\DataObject\Booking\Booking;
 use App\Domain\DataObject\Rule\Availability;
 use App\Utils\RuleViolationList;
 
-final class AvailabilityRuleValidator implements RuleValidatorInterface
+final readonly class AvailabilityRuleValidator implements RuleValidatorInterface
 {
     public function __construct(
         private readonly TimeWardenInterface $timeWarden,

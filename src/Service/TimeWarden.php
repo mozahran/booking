@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Booking;
+namespace App\Service;
 
 use App\Contract\DataObject\TimeBoundedRuleInterface;
-use App\Contract\Service\Booking\TimeWardenInterface;
+use App\Contract\Service\TimeWardenInterface;
 use App\Domain\DataObject\Booking\Booking;
 use App\Domain\DataObject\Booking\Occurrence;
 use App\Domain\Exception\RuleViolationException;

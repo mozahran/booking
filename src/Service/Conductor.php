@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Service\Booking;
+namespace App\Service;
 
 use App\Builder\BookingBuilder;
 use App\Builder\OccurrenceSetBuilder;
 use App\Contract\Persistor\BookingPersistorInterface;
 use App\Contract\Repository\OccurrenceRepositoryInterface;
 use App\Contract\Resolver\BookingResolverInterface;
-use App\Contract\Service\Booking\ConductorInterface;
+use App\Contract\Service\ConductorInterface;
 use App\Contract\Service\JanitorInterface;
 use App\Domain\DataObject\Booking\Booking;
 use App\Domain\DataObject\Booking\RecurrenceRule;
@@ -18,7 +18,7 @@ use App\Request\BookingRequest;
 use Doctrine\ORM\EntityManagerInterface;
 use Throwable;
 
-final class Conductor implements ConductorInterface
+final readonly class Conductor implements ConductorInterface
 {
     public function __construct(
         private BookingResolverInterface $bookingResolver,

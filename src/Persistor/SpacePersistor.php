@@ -9,7 +9,7 @@ use App\Domain\Exception\SpaceNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 
-final class SpacePersistor implements SpacePersistorInterface
+final readonly class SpacePersistor implements SpacePersistorInterface
 {
     public function __construct(
         private SpaceTranslatorInterface $spaceTranslator,

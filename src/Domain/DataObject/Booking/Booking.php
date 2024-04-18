@@ -8,7 +8,7 @@ use App\Contract\DataObject\Identifiable;
 use App\Contract\DataObject\Normalizable;
 use App\Domain\DataObject\Set\OccurrenceSet;
 
-final class Booking implements Identifiable, Normalizable
+final readonly class Booking implements Identifiable, Normalizable
 {
     public function __construct(
         private BookingSpec $bookingSpec,
