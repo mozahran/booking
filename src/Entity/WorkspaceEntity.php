@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\WorkspaceRepository;
@@ -29,9 +31,13 @@ class WorkspaceEntity
     #[ORM\JoinColumn(nullable: false)]
     private ?ProviderEntity $provider = null;
 
+    #[ORM\OneToMany(targetEntity: BookingRuleEntity::class, mappedBy: 'space', orphanRemoval: true)]
+    private Collection $rules;
+
     public function __construct()
     {
         $this->spaces = new ArrayCollection();
+        $this->rules = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -103,5 +109,13 @@ class WorkspaceEntity
         $this->provider = $provider;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, BookingRuleEntity>
+     */
+    public function getRules(): Collection
+    {
+        return $this->rules;
     }
 }

@@ -2,11 +2,13 @@
 
 namespace App\Service;
 
+use App\Contract\Repository\BookingRuleRepositoryInterface;
 use App\Contract\Repository\ProviderRepositoryInterface;
 use App\Contract\Repository\SpaceRepositoryInterface;
 use App\Contract\Repository\UserRepositoryInterface;
 use App\Contract\Repository\WorkspaceRepositoryInterface;
 use App\Contract\Service\PhoenixInterface;
+use App\Domain\DataObject\BookingRule;
 use App\Domain\DataObject\Provider;
 use App\Domain\DataObject\Space;
 use App\Domain\DataObject\User;
@@ -19,6 +21,7 @@ final readonly class Phoenix implements PhoenixInterface
         private SpaceRepositoryInterface $spaceRepository,
         private WorkspaceRepositoryInterface $workspaceRepository,
         private UserRepositoryInterface $userRepository,
+        private BookingRuleRepositoryInterface $bookingRuleRepository,
     ) {
     }
 
@@ -68,5 +71,17 @@ final readonly class Phoenix implements PhoenixInterface
         User $user,
     ): void {
         $this->userRepository->deactivate(id: $user->getId());
+    }
+
+    public function activateBookingRule(
+        BookingRule $bookingRule,
+    ): void {
+        $this->bookingRuleRepository->activate(id: $bookingRule->getId());
+    }
+
+    public function deactivateBookingRule(
+        BookingRule $bookingRule,
+    ): void {
+        $this->bookingRuleRepository->deactivate(id: $bookingRule->getId());
     }
 }

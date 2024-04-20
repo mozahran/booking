@@ -52,13 +52,20 @@ class CancellationVoter extends Voter
     ): bool {
         $bookingSet = $this->bookingResolver->resolveMany(ids: $ids);
 
-        $ownerIds = $bookingSet->ownerIds();
-        if ($this->isOwnerOfSelectedBookings(ownerIds: $ownerIds, userEntity: $user)) {
+        $isOwnerOfSelectedBookings = $this->isOwnerOfSelectedBookings(
+            ownerIds: $bookingSet->ownerIds(),
+            userEntity: $user,
+        );
+        if ($isOwnerOfSelectedBookings) {
             return true;
         }
 
         $spaceSet = $this->spaceResolver->resolveMany(ids: $bookingSet->spaceIds());
-        if ($this->nexus->isSpacesOwner(spaceSet: $spaceSet, user: $user)) {
+        $isOwnerOfSpaces = $this->nexus->isOwnerOfSpaceSet(
+            spaceSet: $spaceSet,
+            user: $user,
+        );
+        if ($isOwnerOfSpaces) {
             return true;
         }
 

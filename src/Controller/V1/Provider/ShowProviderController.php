@@ -20,10 +20,14 @@ class ShowProviderController extends AbstractController
     public function __invoke(
         int $providerId,
     ): JsonResponse {
-        $provider = $this->providerResolver->resolve(id: $providerId);
+        $provider = $this->providerResolver->resolve(
+            id: $providerId,
+        );
 
-        return $this->json([
-            'data' => $provider->normalize(),
-        ]);
+        return $this->json(
+            data: [
+                'data' => $provider->normalize(),
+            ],
+        );
     }
 }

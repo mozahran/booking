@@ -5,19 +5,17 @@ declare(strict_types=1);
 namespace App\Domain\DataObject\Booking;
 
 use App\Contract\DataObject\Normalizable;
-use App\Contract\Request\TimeRangeAware;
+use App\Domain\Enum\Rule\Predicate;
 use App\Domain\Exception\InvalidTimeRangeException;
-use DateTimeImmutable;
-use Exception;
 
 final readonly class TimeRange implements Normalizable
 {
-    public const SHORT_FORMAT = 'Y-m-d H:i';
+    public const DATETIME_FORMAT = 'Y-m-d H:i';
     public const DATE_FORMAT = 'Y-m-d';
-    const SHORT_TIME_FORMAT = 'H:i';
+    public const DATE_TIME_FORMAT_MICROSECONDS = 'Y-m-d H:i:s.u';
 
-    private DateTimeImmutable $startsAt;
-    private DateTimeImmutable $endsAt;
+    private \DateTimeImmutable $startsAt;
+    private \DateTimeImmutable $endsAt;
 
     /**
      * @throws InvalidTimeRangeException
@@ -30,12 +28,12 @@ final readonly class TimeRange implements Normalizable
             if ('' === $startsAt || '' === $endsAt) {
                 throw new InvalidTimeRangeException('Start & end time must be set!');
             }
-            $this->startsAt = new DateTimeImmutable($startsAt);
-            $this->endsAt = new DateTimeImmutable($endsAt);
+            $this->startsAt = new \DateTimeImmutable($startsAt);
+            $this->endsAt = new \DateTimeImmutable($endsAt);
             if ($this->endsAt < $this->startsAt) {
                 throw new InvalidTimeRangeException('End time cannot be older than start time!');
             }
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             throw new InvalidTimeRangeException($exception->getMessage());
         }
     }
@@ -43,16 +41,22 @@ final readonly class TimeRange implements Normalizable
     /**
      * @throws InvalidTimeRangeException
      */
-    public static function fromRequest(
-        TimeRangeAware $request,
-    ): TimeRange {
+    public static function withDefault(
+        ?string $startsAt = null,
+        ?string $endsAt = null,
+    ): self {
+        $now = new \DateTimeImmutable(datetime: 'now');
+
+        $startsAt ??= $now->format('Y-m-d 00:00:00');
+        $endsAt ??= $now->format('Y-m-d 23:59:59');
+
         return new self(
-            startsAt: $request->getStartsAt(),
-            endsAt: $request->getEndsAt(),
+            startsAt: $startsAt,
+            endsAt: $endsAt,
         );
     }
 
-    public function getStartsAt(): DateTimeImmutable
+    public function getStartsAt(): \DateTimeImmutable
     {
         return $this->startsAt;
     }
@@ -67,12 +71,27 @@ final readonly class TimeRange implements Normalizable
         return ($h * 60) + $m;
     }
 
+    public function getMinutesToMidnight(): int
+    {
+        return abs(Predicate::MINUTES_IN_DAY - $this->getStartMinutes());
+    }
+
+    public function getMinutesFromMidnight(): int
+    {
+        return $this->getStartMinutes();
+    }
+
     public function getStartTime(): string
     {
         return $this->getStartsAt()->format('H:i:00');
     }
 
-    public function getEndsAt(): DateTimeImmutable
+    public function getDateTimeString(): string
+    {
+        return $this->getStartsAt()->format(self::DATETIME_FORMAT);
+    }
+
+    public function getEndsAt(): \DateTimeImmutable
     {
         return $this->endsAt;
     }
@@ -109,6 +128,59 @@ final readonly class TimeRange implements Normalizable
     public function getDateString(): string
     {
         return $this->getStartsAt()->format(self::DATE_FORMAT);
+    }
+
+    public function getWeekdayNumber(): int
+    {
+        return (int) $this->getStartsAt()->format('w');
+    }
+
+    public function getStartOfDay(): \DateTimeImmutable
+    {
+        $datetime = $this->getStartsAt()->format('Y-m-d 00:00:00');
+
+        return new \DateTimeImmutable($datetime);
+    }
+
+    public function getEndOfDay(): \DateTimeImmutable
+    {
+        $datetime = $this->getEndsAt()->format('Y-m-d 23:59:59.999999');
+
+        return new \DateTimeImmutable($datetime);
+    }
+
+    public function getStartOfWeek(int $weekStartsAt = 6): \DateTimeImmutable
+    {
+        $daysPerWeek = 7;
+        $startsAt = \DateTime::createFromImmutable($this->getStartsAt());
+        $dayOfWeek = (int) $startsAt->format('w');
+        $days = ($daysPerWeek + $dayOfWeek - $weekStartsAt) % $daysPerWeek;
+        $startsAt->modify('-'.$days.' days');
+        $startsAt->setTime(0, 0);
+
+        return \DateTimeImmutable::createFromMutable($startsAt);
+    }
+
+    public function getEndOfWeek(int $weekStartsAt = 6): \DateTimeImmutable
+    {
+        $startsAt = \DateTime::createFromImmutable($this->getStartOfWeek($weekStartsAt));
+        $endsAt = $startsAt->modify('+6 days')->setTime(23, 59, 59, 999999);
+
+        return \DateTimeImmutable::createFromMutable($endsAt);
+    }
+
+    public function getStartOfMonth(): \DateTimeImmutable
+    {
+        $datetime = $this->getStartsAt()->format('Y-m-01 00:00:00');
+
+        return new \DateTimeImmutable($datetime);
+    }
+
+    public function getEndOfMonth(): \DateTimeImmutable
+    {
+        $datetime = $this->getStartsAt()->format('Y-m-t 23:59:59.999999');
+
+        return new \DateTimeImmutable($datetime);
     }
 
     public function normalize(): array

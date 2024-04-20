@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\DataObject\Set;
 
 use App\Domain\DataObject\Booking\Occurrence;
+use App\Domain\DataObject\Booking\TimeRange;
 
 /**
  * @method Occurrence|null first()
@@ -42,7 +43,7 @@ class OccurrenceSet extends AbstractSet
         return array_keys($result);
     }
 
-    public function sort()
+    public function sort(): self
     {
         usort(
             $this->items,
@@ -50,5 +51,47 @@ class OccurrenceSet extends AbstractSet
         );
 
         return $this;
+    }
+
+    /**
+     * Aggregates the duration of all items in the set.
+     */
+    public function duration(): int
+    {
+        $result = 0;
+        $items = $this->items();
+        foreach ($items as $item) {
+            $result += $item->getTimeRange()->getDuration();
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return string[] dates
+     */
+    public function dates(): array
+    {
+        $result = [];
+        $items = $this->items();
+        foreach ($items as $item) {
+            $result[] = $item->getTimeRange()->getDateString();
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return TimeRange[]
+     */
+    public function timeRanges(): array
+    {
+        $result = [];
+        $items = $this->items();
+        foreach ($items as $item) {
+            $result[] = $item->getTimeRange();
+        }
+
+        return $result;
     }
 }

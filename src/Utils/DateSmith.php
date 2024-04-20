@@ -2,20 +2,18 @@
 
 namespace App\Utils;
 
-use DateTimeImmutable;
-
 final readonly class DateSmith
 {
-    public static function now(): DateTimeImmutable
+    public static function now(): \DateTimeImmutable
     {
-        return new DateTimeImmutable();
+        return new \DateTimeImmutable();
     }
 
     public static function withTime(
         int $hour,
         int $minute
-    ): DateTimeImmutable {
-        return new DateTimeImmutable(sprintf('today %d:%d', $hour, $minute));
+    ): \DateTimeImmutable {
+        return new \DateTimeImmutable(sprintf('now %d:%d', $hour, $minute));
     }
 
     public static function withDateAndTime(
@@ -24,7 +22,7 @@ final readonly class DateSmith
         int $day,
         int $hour,
         int $minute
-    ): DateTimeImmutable {
-        return new DateTimeImmutable(sprintf('%d-%d-%d %d:%d', $year, $month, $day, $hour, $minute));
+    ): \DateTimeImmutable {
+        return new \DateTimeImmutable(sprintf('%d-%d-%d %d:%d', $year, $month, $day, $hour, $minute));
     }
 }

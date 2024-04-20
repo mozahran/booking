@@ -6,6 +6,7 @@ namespace App\Controller\V1\User;
 
 use App\Contract\Resolver\UserResolverInterface;
 use App\Contract\Service\PhoenixInterface;
+use App\Domain\Enum\UserRole;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,13 +21,19 @@ class DeactivateUserController extends AbstractController
     }
 
     #[Route(path: '/v1/user/{userId}/deactivate', name: 'app_user_deactivate', methods: ['PUT'])]
-    #[IsGranted('ROLE_ADMIN', message: 'Access Denied!')]
+    #[IsGranted(attribute: UserRole::ADMIN->value, message: 'Access Denied!')]
     public function __invoke(
         int $userId,
     ): JsonResponse {
-        $user = $this->userResolver->resolve(id: $userId);
-        $this->phoenix->deactivateUser(user: $user);
+        $user = $this->userResolver->resolve(
+            id: $userId,
+        );
+        $this->phoenix->deactivateUser(
+            user: $user,
+        );
 
-        return $this->json([]);
+        return $this->json(
+            data: [],
+        );
     }
 }

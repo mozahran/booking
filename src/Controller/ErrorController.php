@@ -13,13 +13,21 @@ class ErrorController extends AbstractController
     public function show(
         \Throwable $exception,
     ): JsonResponse {
-        $error = $exception->getMessage();
         if (!$exception instanceof AppException && 'prod' === strtolower($_ENV['APP_ENV'])) {
-            $error = 'System error!';
+            $data = [
+                'error' => 'System error!',
+            ];
+        } else {
+            $data = [
+                'error' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'trace' => $exception->getTraceAsString(),
+            ];
         }
 
         return $this->json(
-            data: ['error' => $error],
+            data: $data,
             status: $this->getStatusCode($exception),
         );
     }
@@ -27,6 +35,7 @@ class ErrorController extends AbstractController
     private function getStatusCode(
         \Throwable $exception,
     ): int {
-        return !$exception->getCode() || $exception->getCode() >= 600 || 0 === $exception->getCode() ? 199 : $exception->getCode();
+        return !$exception->getCode() || $exception->getCode() >= 600 || 0 === $exception->getCode(
+        ) ? 199 : $exception->getCode();
     }
 }

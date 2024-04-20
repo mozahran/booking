@@ -23,11 +23,17 @@ class ListWorkspaceController extends AbstractController
     public function __invoke(
         WorkspaceRequest $request,
     ): JsonResponse {
-        $provider = $this->providerResolver->resolve(id: $request->getProviderId());
-        $workspaceSet = $this->workspaceResolver->resolveByProvider(providerId: $provider->getId());
+        $provider = $this->providerResolver->resolve(
+            id: $request->getProviderId(),
+        );
+        $workspaceSet = $this->workspaceResolver->resolveByProvider(
+            providerId: $provider->getId(),
+        );
 
-        return $this->json([
-            'data' => $workspaceSet->normalize(),
-        ]);
+        return $this->json(
+            data: [
+                'data' => $workspaceSet->normalize(),
+            ],
+        );
     }
 }

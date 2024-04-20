@@ -5,116 +5,28 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Contract\Repository\ProviderUserDataRepositoryInterface;
-use App\Contract\Resolver\SpaceResolverInterface;
+use App\Contract\Resolver\ProviderResolverInterface;
 use App\Contract\Resolver\WorkspaceResolverInterface;
 use App\Contract\Service\NexusInterface;
 use App\Domain\DataObject\Booking\Booking;
+use App\Domain\DataObject\BookingRule;
 use App\Domain\DataObject\Provider;
 use App\Domain\DataObject\Set\SpaceSet;
 use App\Domain\DataObject\Space;
 use App\Domain\DataObject\Workspace;
 use App\Domain\Enum\UserRole;
-use App\Domain\Exception\AccessDeniedException;
 use App\Domain\Exception\ProviderUserDataNotFoundException;
-use App\Domain\Exception\SpaceNotFoundException;
 use App\Domain\Exception\WorkspaceNotFoundException;
+use App\Entity\UserEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 final readonly class Nexus implements NexusInterface
 {
     public function __construct(
         private WorkspaceResolverInterface $workspaceResolver,
+        private ProviderResolverInterface $providerResolver,
         private ProviderUserDataRepositoryInterface $providerUserDataRepository,
-        private SpaceResolverInterface $spaceResolver,
     ) {
-    }
-
-    /**
-     * @throws AccessDeniedException
-     */
-    public function denyUnlessCanAccessSpace(
-        Space $space,
-        UserInterface $user,
-    ): void {
-        try {
-            $workspace = $this->workspaceResolver->resolve($space->getWorkspaceId());
-            $providerUserData = $this->providerUserDataRepository->findOne(
-                userId: $user->getId(),
-                providerId: $workspace->getProviderId(),
-            );
-
-            if ($providerUserData || $this->isAdmin(user: $user)) {
-                return;
-            }
-        } catch (WorkspaceNotFoundException|ProviderUserDataNotFoundException) {
-        }
-
-        throw new AccessDeniedException();
-    }
-
-    public function denyUnlessCanManageBooking(
-        Booking $booking,
-        UserInterface $user,
-    ): void {
-        $accessDeniedException = new AccessDeniedException(
-            'You are not allowed to modify bookings that do not belong to you!',
-        );
-
-        if (
-            $this->isBookingOwner(booking: $booking, user: $user)
-            || $this->isAdmin(user: $user)
-        ) {
-            return;
-        }
-
-        try {
-            $space = $this->spaceResolver->resolve($booking->getSpaceId());
-            if ($this->isSpaceOwner(space: $space, user: $user)) {
-                return;
-            }
-        } catch (SpaceNotFoundException) {
-        }
-
-        throw $accessDeniedException;
-    }
-
-    public function denyUnlessCanManageSpace(
-        Space $space,
-        UserInterface $user,
-    ): void {
-        try {
-            $workspace = $this->workspaceResolver->resolve(id: $space->getWorkspaceId());
-            if (
-                $this->isWorkspaceOwner(workspace: $workspace, user: $user)
-                || $this->isAdmin(user: $user)
-            ) {
-                return;
-            }
-        } catch (WorkspaceNotFoundException) {
-        }
-
-        throw new AccessDeniedException();
-    }
-
-    public function denyUnlessCanManageProvider(
-        Provider $provider,
-        UserInterface $user,
-    ): void {
-        $canManageProvider = in_array(
-            $provider->getId(),
-            $this->getProviderIdsWhereUserIsOwner($user),
-            true,
-        );
-
-        if ($canManageProvider) {
-            return;
-        }
-
-        if ($this->isAdmin(user: $user)) {
-            return;
-        }
-
-        throw new AccessDeniedException();
     }
 
     public function isAdmin(
@@ -129,18 +41,22 @@ final readonly class Nexus implements NexusInterface
 
     public function isWorkspaceOwner(
         Workspace $workspace,
-        UserInterface $user,
+        UserInterface|UserEntity $user,
     ): bool {
-        $providerIds = $this->getProviderIdsWhereUserIsOwner(user: $user);
+        $providerSet = $this->providerResolver->resolveManyByUser($user->getId());
 
-        return in_array($workspace->getProviderId(), $providerIds, true);
+        return in_array(
+            needle: $workspace->getProviderId(),
+            haystack: $providerSet->ids(),
+            strict: true,
+        );
     }
 
     public function isLinkedToProvider(
         Provider $provider,
         UserInterface $user,
     ): bool {
-        $providerIds = $this->getProviderIdsWhereUserIsOwner(user: $user);
+        $providerIds = $this->getProviderIdsWhereUserIsLinkedTo(user: $user);
 
         return in_array(
             needle: $provider->getId(),
@@ -155,20 +71,18 @@ final readonly class Nexus implements NexusInterface
     ): bool {
         try {
             $workspace = $this->workspaceResolver->resolve(id: $space->getWorkspaceId());
-        } catch (WorkspaceNotFoundException) {
+            $providerUserData = $this->providerUserDataRepository->findOne(
+                userId: $user->getId(),
+                providerId: $workspace->getProviderId(),
+            );
+        } catch (WorkspaceNotFoundException|ProviderUserDataNotFoundException) {
             return false;
         }
 
-        $providerIds = $this->getProviderIdsWhereUserIsOwner(user: $user);
-
-        return in_array(
-            needle: $workspace->getProviderId(),
-            haystack: $providerIds,
-            strict: true,
-        );
+        return UserRole::OWNER === $providerUserData->getRole();
     }
 
-    public function isSpacesOwner(
+    public function isOwnerOfSpaceSet(
         SpaceSet $spaceSet,
         UserInterface $user,
     ): bool {
@@ -195,15 +109,47 @@ final readonly class Nexus implements NexusInterface
         UserInterface $user,
     ): array {
         $providerIds = [];
-        $providerUserDataSet = $this->providerUserDataRepository->findManyByUser(userId: $user->getId());
-        $providerUserDataItems = $providerUserDataSet->items();
-        foreach ($providerUserDataItems as $providerUserData) {
-            if (UserRole::OWNER !== $providerUserData->getRole()) {
+        $providerUserData = $this->providerUserDataRepository->findManyByUser(userId: $user->getId())->items();
+        foreach ($providerUserData as $providerUserDatum) {
+            if (UserRole::OWNER !== $providerUserDatum->getRole()) {
                 continue;
             }
-            $providerIds[] = $providerUserData->getProviderId();
+            $providerIds[] = $providerUserDatum->getProviderId();
         }
 
         return $providerIds;
+    }
+
+    /**
+     * @return int[];
+     */
+    private function getProviderIdsWhereUserIsLinkedTo(
+        UserInterface $user,
+    ): array {
+        $providerIds = [];
+        $providerUserData = $this->providerUserDataRepository->findManyByUser(userId: $user->getId());
+        $providerUserData = $providerUserData->items();
+        foreach ($providerUserData as $providerUserDatum) {
+            $providerIds[] = $providerUserDatum->getProviderId();
+        }
+
+        return $providerIds;
+    }
+
+    public function isBookingRuleOwner(
+        BookingRule $bookingRule,
+        UserInterface $user,
+    ): bool {
+        $provider = $this->providerResolver->resolve(id: $bookingRule->getWorkspaceId());
+        try {
+            $providerUserData = $this->providerUserDataRepository->findOne(
+                userId: $user->getId(),
+                providerId: $provider->getId(),
+            );
+        } catch (ProviderUserDataNotFoundException) {
+            return false;
+        }
+
+        return UserRole::OWNER === $providerUserData->getRole();
     }
 }

@@ -6,13 +6,12 @@ namespace App\Validator\Rule;
 
 use App\Contract\DataObject\RuleInterface;
 use App\Contract\Resolver\UserResolverInterface;
-use App\Contract\Service\TimeWardenInterface;
+use App\Contract\Service\BookingRule\TimeWardenInterface;
 use App\Contract\Validator\RuleValidatorInterface;
 use App\Domain\DataObject\Booking\Booking;
 use App\Domain\DataObject\Rule\Condition;
 use App\Domain\DataObject\Rule\Deny;
 use App\Domain\Enum\Rule\Operand;
-use App\Domain\Enum\Rule\Predicate;
 use App\Domain\Exception\RuleViolationException;
 use App\Domain\Exception\UserNotFoundException;
 use App\Utils\Comparator;
@@ -30,15 +29,12 @@ final readonly class DenyRuleValidator implements RuleValidatorInterface
         Booking $booking,
         Deny|RuleInterface $rule,
     ): RuleViolationList {
-        $ruleViolationList = RuleViolationList::create();
-
+        $ruleViolationList = RuleViolationList::empty();
         $timeBoundaryViolations = $this->timeWarden->validateBoundaries(
             booking: $booking,
             rule: $rule,
         );
-
         $ruleViolationList->merge($timeBoundaryViolations->all());
-
         $conditionGroups = $rule->getConditionGroups();
         foreach ($conditionGroups as $conditionGroup) {
             $conditions = $conditionGroup->getConditions();
@@ -69,7 +65,6 @@ final readonly class DenyRuleValidator implements RuleValidatorInterface
         $value = $condition->getValue();
         $duration = $booking->getTimeRange()->getDuration();
         $operator = $condition->getOperator();
-
         if (Comparator::is(x: $duration, operator: $operator, y: $value)) {
             throw RuleViolationException::durationIs($operator, $value);
         }
@@ -82,13 +77,10 @@ final readonly class DenyRuleValidator implements RuleValidatorInterface
         Booking $booking,
         Condition $condition,
     ): void {
-        $midnightInMinutes = 0;
         $value = $condition->getValue();
         $operator = $condition->getOperator();
-        $bookingStartTime = $booking->getTimeRange()->getStartMinutes();
-        $diffFromMidnight = abs($midnightInMinutes - $bookingStartTime);
-
-        if (Comparator::is(x: $diffFromMidnight, operator: $operator, y: $value)) {
+        $minutesFromMidnight = $booking->getTimeRange()->getMinutesFromMidnight();
+        if (Comparator::is(x: $minutesFromMidnight, operator: $operator, y: $value)) {
             throw RuleViolationException::intervalFromMidnight($operator, $value);
         }
     }
@@ -100,13 +92,11 @@ final readonly class DenyRuleValidator implements RuleValidatorInterface
         Booking $booking,
         Condition $condition,
     ): void {
-        $value = $condition->getValue();
+        $minutes = $condition->getValue();
         $operator = $condition->getOperator();
-        $bookingStartMinutes = $booking->getTimeRange()->getStartMinutes();
-
-        $diffToMidnight = abs(Predicate::MINUTES_IN_DAY - $bookingStartMinutes);
-        if (Comparator::is(x: $diffToMidnight, operator: $operator, y: $value)) {
-            throw RuleViolationException::intervalToMidnight($operator, $value);
+        $minutesToMidnight = $booking->getTimeRange()->getMinutesToMidnight();
+        if (Comparator::is(x: $minutesToMidnight, operator: $operator, y: $minutes)) {
+            throw RuleViolationException::intervalToMidnight($operator, $minutes);
         }
     }
 
@@ -119,14 +109,12 @@ final readonly class DenyRuleValidator implements RuleValidatorInterface
     ): void {
         try {
             $user = $this->userResolver->resolve(id: $booking->getUserId());
+            $value = $condition->getValue();
+            $operator = $condition->getOperator();
+            if (Comparator::is(x: $user->getRoles(), operator: $operator, y: $value)) {
+                throw RuleViolationException::userRoles();
+            }
         } catch (UserNotFoundException) {
-            return;
-        }
-        $value = $condition->getValue();
-        $operator = $condition->getOperator();
-
-        if (Comparator::is(x: $user->getRoles(), operator: $operator, y: $value)) {
-            throw RuleViolationException::userRoles();
         }
     }
 }

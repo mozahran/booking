@@ -14,7 +14,7 @@ abstract class AbstractRequest
     ) {
     }
 
-    protected function request(): ?Request
+    public function request(): ?Request
     {
         if (!isset($this->request)) {
             $this->request = $this->requestStack->getCurrentRequest();

@@ -45,7 +45,7 @@ class WorkspaceRepository extends ServiceEntityRepository implements WorkspaceRe
 
             return $this->workspaceTranslator->toWorkspace($entity);
         } catch (NonUniqueResultException|NoResultException) {
-            throw new WorkspaceNotFoundException();
+            throw new WorkspaceNotFoundException(id: $id);
         }
     }
 

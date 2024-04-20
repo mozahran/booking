@@ -45,7 +45,7 @@ class SpaceRepository extends ServiceEntityRepository implements SpaceRepository
 
             return $this->spaceTranslator->toSpace($spaceEntity);
         } catch (NonUniqueResultException|NoResultException) {
-            throw new SpaceNotFoundException();
+            throw new SpaceNotFoundException(id: $id);
         }
     }
 
@@ -83,7 +83,7 @@ class SpaceRepository extends ServiceEntityRepository implements SpaceRepository
 
             return $this->spaceTranslator->toSpace($spaceEntity);
         } catch (NonUniqueResultException|NoResultException) {
-            throw new SpaceNotFoundException();
+            throw new SpaceNotFoundException(id: $spaceId);
         }
     }
 

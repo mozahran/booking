@@ -20,10 +20,14 @@ class ShowBookingController extends AbstractController
     public function __invoke(
         int $bookingId,
     ): JsonResponse {
-        $booking = $this->bookingResolver->resolve(id: $bookingId);
+        $booking = $this->bookingResolver->resolve(
+            id: $bookingId,
+        );
 
-        return $this->json([
-            'data' => $booking->normalize(),
-        ]);
+        return $this->json(
+            data: [
+                'data' => $booking->normalize(),
+            ],
+        );
     }
 }

@@ -9,6 +9,7 @@ use App\Contract\Translator\BookingTranslatorInterface;
 use App\Domain\DataObject\Booking\Booking;
 use App\Domain\DataObject\Booking\TimeRange;
 use App\Domain\DataObject\Set\BookingSet;
+use App\Domain\DataObject\Set\TimeRangeSet;
 use App\Domain\Exception\BookingNotFoundException;
 use App\Entity\BookingEntity;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -100,14 +101,11 @@ class BookingRepository extends ServiceEntityRepository implements BookingReposi
             ->execute();
     }
 
-    /**
-     * @param TimeRange[] $timeRanges
-     */
     public function countBufferConflicts(
         int $spaceId,
-        array $timeRanges,
+        TimeRangeSet $timeRangeSet,
     ): int {
-        if (empty($timeRanges)) {
+        if ($timeRangeSet->isEmpty()) {
             return 0;
         }
         $queryBuilder = $this
@@ -118,23 +116,24 @@ class BookingRepository extends ServiceEntityRepository implements BookingReposi
             ->setParameter('spaceId', $spaceId);
 
         $expressions = [];
+        $timeRanges = $timeRangeSet->items();
         foreach ($timeRanges as $timeRange) {
             $and = $queryBuilder->expr()->orX();
             $and->add(
                 arg: $queryBuilder->expr()->gt(
                     x: 'o.startsAt',
                     y: $queryBuilder->expr()->literal(
-                        $timeRange->getEndsAt()->format(TimeRange::SHORT_FORMAT)
-                    )
-                )
+                        $timeRange->getEndsAt()->format(TimeRange::DATETIME_FORMAT),
+                    ),
+                ),
             );
             $and->add(
                 arg: $queryBuilder->expr()->gt(
                     x: 'o.endsAt',
                     y: $queryBuilder->expr()->literal(
-                        $timeRange->getStartsAt()->format(TimeRange::SHORT_FORMAT)
-                    )
-                )
+                        $timeRange->getStartsAt()->format(TimeRange::DATETIME_FORMAT),
+                    ),
+                ),
             );
             $expressions[] = $and;
         }
@@ -146,5 +145,26 @@ class BookingRepository extends ServiceEntityRepository implements BookingReposi
         $queryBuilder->andWhere($and);
 
         return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
+    public function findByTimeRangeForUser(
+        TimeRange $timeRange,
+        int $userId,
+    ): BookingSet {
+        $entities = $this
+            ->createQueryBuilder('b')
+            ->join('b.occurrences', 'o')
+            ->andWhere('b.user = :user')
+            ->andWhere('o.startsAt >= :startsAt')
+            ->andWhere('o.endsAt <= :endsAt')
+            ->andWhere('b.cancelled = false')
+            ->andWhere('o.cancelled = false')
+            ->setParameter('user', $userId)
+            ->setParameter('startsAt', $timeRange->getStartsAt())
+            ->setParameter('endsAt', $timeRange->getEndsAt())
+            ->getQuery()
+            ->getResult();
+
+        return $this->bookingTranslator->toBookingSet($entities);
     }
 }

@@ -26,7 +26,7 @@ final readonly class WindowRuleValidator implements RuleValidatorInterface
         Booking $booking,
         Window|RuleInterface $rule,
     ): RuleViolationList {
-        $ruleViolationList = RuleViolationList::create();
+        $ruleViolationList = RuleViolationList::empty();
         if ($this->isNotApplicableToBookingUser(rule: $rule, booking: $booking)) {
             return $ruleViolationList;
         }
@@ -51,7 +51,6 @@ final readonly class WindowRuleValidator implements RuleValidatorInterface
         if (null === $rule->getRoles()) {
             return false;
         }
-
         try {
             $user = $this->userResolver->resolve(id: $booking->getUserId());
         } catch (UserNotFoundException) {

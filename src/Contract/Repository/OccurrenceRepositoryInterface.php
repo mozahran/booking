@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Contract\Repository;
 
 use App\Domain\DataObject\Booking\Occurrence;
+use App\Domain\DataObject\Booking\TimeRange;
 use App\Domain\DataObject\Set\OccurrenceSet;
 use App\Domain\Exception\OccurrenceNotFoundException;
 
@@ -45,4 +46,32 @@ interface OccurrenceRepositoryInterface
     public function delete(
         array $ids,
     ): void;
+
+    /**
+     * @param TimeRange[] $timeRanges
+     */
+    public function getTimeUsageByUserAndSpaceInGivenTimeRanges(
+        int $spaceId,
+        int $userId,
+        array $timeRanges,
+    ): int;
+
+    public function getTimeUsageByUserAndSpace(
+        int $userId,
+        int $spaceId,
+    ): int;
+
+    /**
+     * @param TimeRange[] $timeRanges
+     */
+    public function countByUserAndSpaceInGivenTimeRanges(
+        int $spaceId,
+        int $userId,
+        array $timeRanges,
+    ): int;
+
+    public function countByUserAndSpace(
+        int $userId,
+        int $spaceId,
+    ): int;
 }

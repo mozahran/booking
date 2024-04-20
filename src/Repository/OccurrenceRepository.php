@@ -7,12 +7,16 @@ namespace App\Repository;
 use App\Contract\Repository\OccurrenceRepositoryInterface;
 use App\Contract\Translator\OccurrenceTranslatorInterface;
 use App\Domain\DataObject\Booking\Occurrence;
+use App\Domain\DataObject\Booking\TimeRange;
 use App\Domain\DataObject\Set\OccurrenceSet;
 use App\Domain\Exception\OccurrenceNotFoundException;
 use App\Entity\OccurrenceEntity;
+use App\Utils\TimeDiff;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Query\Expr\Orx;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -97,19 +101,19 @@ class OccurrenceRepository extends ServiceEntityRepository implements Occurrence
                 $queryBuilder->expr()->andX(
                     $queryBuilder->expr()->gte('o.startsAt', ':'.$startsAtParamName),
                     $queryBuilder->expr()->lte('o.startsAt', ':'.$endsAtParamName),
-                )
+                ),
             );
             $orX->add(
                 $queryBuilder->expr()->andX(
                     $queryBuilder->expr()->gte('o.endsAt', ':'.$startsAtParamName),
                     $queryBuilder->expr()->lte('o.endsAt', ':'.$endsAtParamName),
-                )
+                ),
             );
             $orX->add(
                 $queryBuilder->expr()->andX(
                     $queryBuilder->expr()->lte('o.startsAt', ':'.$startsAtParamName),
                     $queryBuilder->expr()->gte('o.endsAt', ':'.$endsAtParamName),
-                )
+                ),
             );
             $timeRange = clone $occurrence->getTimeRange();
             $startsAt = $timeRange->getStartsAt()->modify('+1 second');
@@ -170,6 +174,10 @@ class OccurrenceRepository extends ServiceEntityRepository implements Occurrence
     public function delete(
         array $ids,
     ): void {
+        if (empty($ids)) {
+            return;
+        }
+
         $this
             ->createQueryBuilder('o')
             ->delete()
@@ -177,5 +185,140 @@ class OccurrenceRepository extends ServiceEntityRepository implements Occurrence
             ->setParameter('ids', $ids)
             ->getQuery()
             ->execute();
+    }
+
+    public function getTimeUsageByUserAndSpaceInGivenTimeRanges(
+        int $spaceId,
+        int $userId,
+        array $timeRanges,
+    ): int {
+        $queryBuilder = $this->createQueryBuilder('o');
+        $betweenDates = $this->buildBetweenDates(
+            timeRanges: $timeRanges,
+            queryBuilder: $queryBuilder,
+        );
+
+        $entities = $this->findOccurrenceEntities(
+            $queryBuilder,
+            $betweenDates,
+            $spaceId,
+            $userId,
+        );
+
+        return $this->aggregateDurations($entities);
+    }
+
+    public function getTimeUsageByUserAndSpace(
+        int $userId,
+        int $spaceId,
+    ): int {
+        /** @var OccurrenceEntity[] $entities */
+        $entities = $this
+            ->createQueryBuilder('o')
+            ->join('o.booking', 'b')
+            ->andWhere('IDENTITY(b.space) = :spaceId')
+            ->andWhere('IDENTITY(b.user) = :userId')
+            ->andWhere('b.cancelled = 0')
+            ->andWhere('o.cancelled = 0')
+            ->setParameter('spaceId', $spaceId)
+            ->setParameter('userId', $userId);
+
+        return $this->aggregateDurations($entities);
+    }
+
+    public function countByUserAndSpaceInGivenTimeRanges(
+        int $spaceId,
+        int $userId,
+        array $timeRanges,
+    ): int {
+        $queryBuilder = $this->createQueryBuilder('o');
+        $betweenDates = $this->buildBetweenDates(
+            timeRanges: $timeRanges,
+            queryBuilder: $queryBuilder,
+        );
+
+        $entities = $this->findOccurrenceEntities(
+            $queryBuilder,
+            $betweenDates,
+            $spaceId,
+            $userId,
+        );
+
+        return count($entities);
+    }
+
+    public function countByUserAndSpace(
+        int $userId,
+        int $spaceId,
+    ): int {
+        return (int) $this->createQueryBuilder('o')
+            ->select('count(o.id)')
+            ->join('o.booking', 'b')
+            ->andWhere('IDENTITY(b.space) = :spaceId')
+            ->andWhere('IDENTITY(b.user) = :userId')
+            ->andWhere('b.cancelled = 0')
+            ->andWhere('o.cancelled = 0')
+            ->setParameter('spaceId', $spaceId)
+            ->setParameter('userId', $userId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @param TimeRange[] $timeRanges
+     */
+    private function buildBetweenDates(
+        array $timeRanges,
+        QueryBuilder $queryBuilder,
+    ): Orx {
+        $dateConditions = [];
+        foreach ($timeRanges as $index => $timeRange) {
+            $dateConditions[] = $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->gte('o.startsAt', ':startsAt'.$index),
+                $queryBuilder->expr()->lte('o.endsAt', ':endsAt'.$index),
+            );
+            $queryBuilder->setParameter('startsAt'.$index, $timeRange->getStartsAt());
+            $queryBuilder->setParameter('endsAt'.$index, $timeRange->getEndsAt());
+        }
+
+        return $queryBuilder->expr()->orX(...$dateConditions);
+    }
+
+    /**
+     * @return OccurrenceEntity[]
+     */
+    private function findOccurrenceEntities(
+        QueryBuilder $queryBuilder,
+        Orx $betweenDates,
+        int $spaceId,
+        int $userId,
+    ): array {
+        /** @var OccurrenceEntity[] $entities */
+        $entities = $queryBuilder
+            ->join('o.booking', 'b')
+            ->andWhere('IDENTITY(b.space) = :spaceId')
+            ->andWhere('IDENTITY(b.user) = :userId')
+            ->andWhere('b.cancelled = 0')
+            ->andWhere('o.cancelled = 0')
+            ->andWhere($betweenDates)
+            ->setParameter('spaceId', $spaceId)
+            ->setParameter('userId', $userId)
+            ->getQuery()
+            ->getResult();
+
+        return $entities;
+    }
+
+    private function aggregateDurations(array $entities): int
+    {
+        $result = 0;
+        foreach ($entities as $entity) {
+            $result += TimeDiff::minutes(
+                first: $entity->getStartsAt(),
+                second: $entity->getEndsAt(),
+            );
+        }
+
+        return $result;
     }
 }

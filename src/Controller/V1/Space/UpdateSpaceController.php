@@ -8,6 +8,7 @@ use App\Contract\Persistor\SpacePersistorInterface;
 use App\Contract\Resolver\SpaceResolverInterface;
 use App\Domain\DataObject\Space;
 use App\Request\SpaceRequest;
+use App\Security\SpaceVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -22,23 +23,28 @@ class UpdateSpaceController extends AbstractController
     }
 
     #[Route(path: '/v1/space/{spaceId}', name: 'app_space_update', methods: ['PUT'])]
-    #[IsGranted('MANAGE_SPACE', subject: 'request', message: 'Access Denied!')]
+    #[IsGranted(attribute: SpaceVoter::MANAGE, subject: 'request', message: 'Access Denied!')]
     public function __invoke(
         int $spaceId,
         SpaceRequest $request,
     ): JsonResponse {
-        $space = $this->spaceResolver->resolve(id: $spaceId);
+        $space = $this->spaceResolver->resolve(
+            id: $spaceId,
+        );
         $space = new Space(
             name: $request->getName(),
             active: $space->isActive(),
             workspaceId: $space->getWorkspaceId(),
             id: $space->getId(),
         );
+        $space = $this->spacePersistor->persist(
+            space: $space,
+        );
 
-        $space = $this->spacePersistor->persist(space: $space);
-
-        return $this->json([
-            'data' => $space->normalize(),
-        ]);
+        return $this->json(
+            data: [
+                'data' => $space->normalize(),
+            ],
+        );
     }
 }

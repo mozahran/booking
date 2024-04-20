@@ -7,8 +7,10 @@ namespace App\Controller\V1\Space;
 use App\Contract\Persistor\SpacePersistorInterface;
 use App\Domain\DataObject\Space;
 use App\Request\SpaceRequest;
+use App\Security\SpaceVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -20,7 +22,7 @@ class CreateSpaceController extends AbstractController
     }
 
     #[Route(path: '/v1/space', name: 'app_space_create', methods: ['POST'])]
-    #[IsGranted('MANAGE_WORKSPACE', subject: 'request', message: 'Access Denied!')]
+    #[IsGranted(attribute: SpaceVoter::MANAGE, subject: 'request', message: 'Access Denied!')]
     public function __invoke(
         SpaceRequest $request,
     ): JsonResponse {
@@ -29,11 +31,15 @@ class CreateSpaceController extends AbstractController
             active: true,
             workspaceId: $request->getWorkspaceId(),
         );
+        $space = $this->workspacePersistor->persist(
+            space: $space,
+        );
 
-        $space = $this->workspacePersistor->persist(space: $space);
-
-        return $this->json([
-            'data' => $space->normalize(),
-        ]);
+        return $this->json(
+            data: [
+                'data' => $space->normalize(),
+            ],
+            status: Response::HTTP_CREATED,
+        );
     }
 }

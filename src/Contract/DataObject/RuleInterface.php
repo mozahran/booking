@@ -9,4 +9,6 @@ use App\Domain\Enum\RuleType;
 interface RuleInterface
 {
     public function getType(): RuleType;
+
+    public function getSpaceIds(): ?array;
 }

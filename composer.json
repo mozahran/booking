@@ -12,6 +12,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "3.*",
         "lexik/jwt-authentication-bundle": "^2.20",
+        "nesbot/carbon": "^3.3",
         "phpdocumentor/reflection-docblock": "^5.3",
         "phpstan/phpdoc-parser": "^1.27",
         "rlanvin/php-rrule": "^2.4",
@@ -36,6 +37,7 @@
         "dama/doctrine-test-bundle": "^8.0",
         "doctrine/doctrine-fixtures-bundle": "^3.5",
         "friendsofphp/php-cs-fixer": "^3.40",
+        "liip/test-fixtures-bundle": "^2.8",
         "phpstan/phpstan-symfony": "^1.3",
         "phpunit/phpunit": "^10.5",
         "symfony/browser-kit": "7.0.*",
@@ -98,10 +100,18 @@
             "php bin/console doctrine:schema:create --no-debug -n --env=test"
         ],
         "db-fixtures": [
-            "php bin/console doctrine:fixtures:load --no-interaction"
+            "php bin/console doctrine:fixtures:load --group=app -n"
         ],
         "db-fixtures-test": [
-            "php bin/console doctrine:fixtures:load --no-interaction --env=test"
+            "php bin/console doctrine:fixtures:load --group=test -n --env=test"
+        ],
+        "db-prepare": [
+            "@db-reset-hard",
+            "@db-fixtures"
+        ],
+        "db-prepare-test": [
+            "@db-reset-hard-test",
+            "@db-fixtures-test"
         ],
         "cs-check": [
             "./vendor/bin/php-cs-fixer fix src --dry-run --rules=@Symfony --using-cache=no --diff --allow-risky=yes --verbose"

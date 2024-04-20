@@ -2,9 +2,10 @@
 
 namespace App\Domain\DataObject\Rule;
 
+use App\Contract\DataObject\Denormalizable;
 use App\Contract\DataObject\Normalizable;
 
-final readonly class ConditionGroup implements Normalizable
+final readonly class ConditionGroup implements Normalizable, Denormalizable
 {
     /**
      * @param Condition[] $conditions
@@ -21,11 +22,27 @@ final readonly class ConditionGroup implements Normalizable
 
     public function normalize(): array
     {
-        $result = [];
+        $normalized = [];
         foreach ($this->getConditions() as $condition) {
-            $result[] = $condition->normalize();
+            $normalized[] = $condition->normalize();
         }
 
-        return $result;
+        return [
+            'conditions' => $normalized,
+        ];
+    }
+
+    public static function denormalize(
+        array $data,
+    ): Denormalizable {
+        $conditions = [];
+        $normalizedConditions = $data['conditions'];
+        foreach ($normalizedConditions as $conditionData) {
+            $conditions[] = Condition::denormalize($conditionData);
+        }
+
+        return new self(
+            conditions: $conditions,
+        );
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\V1\User;
 
 use App\Contract\Resolver\UserResolverInterface;
+use App\Domain\Enum\UserRole;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -18,14 +19,18 @@ class ShowUserController extends AbstractController
     }
 
     #[Route(path: '/v1/user/{userId}', name: 'app_user_show', methods: ['GET'])]
-    #[IsGranted('ROLE_ADMIN', message: 'Access Denied!')]
+    #[IsGranted(attribute: UserRole::ADMIN->value, message: 'Access Denied!')]
     public function __invoke(
         int $userId,
     ): JsonResponse {
-        $user = $this->userResolver->resolve(id: $userId);
+        $user = $this->userResolver->resolve(
+            id: $userId,
+        );
 
-        return $this->json([
-            'data' => $user->normalize(),
-        ]);
+        return $this->json(
+            data: [
+                'data' => $user->normalize(),
+            ],
+        );
     }
 }

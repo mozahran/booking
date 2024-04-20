@@ -49,7 +49,7 @@ final class OccurrenceSetBuilder
             cancelled: $cancelled,
             cancellerId: $cancellerId,
         );
-        $occurrence = new Occurrence(
+        $occurrence = $this->createOccurrence(
             timeRange: $timeRange,
             status: $status,
             bookingId: $bookingId,
@@ -89,6 +89,8 @@ final class OccurrenceSetBuilder
     public function setExistingOccurrences(
         OccurrenceSet $occurrences,
     ): self {
+        // TODO: throw a warning exception if ::add was called before calling this method
+        // motive? to copy status and IDs to the newly add occurrence
         $this->existingOccurrences = $occurrences;
 
         return $this;
@@ -116,21 +118,24 @@ final class OccurrenceSetBuilder
 
     private function createOccurrence(
         TimeRange $timeRange,
+        ?Status $status = null,
+        ?int $bookingId = null,
+        ?int $id = null,
     ): Occurrence {
         /** @var Occurrence $existingOccurrence */
         $existingOccurrence = $this->existingOccurrences->find(
             dateString: $timeRange->getDateString(),
         );
         $status = new Status(
-            cancelled: $existingOccurrence?->getStatus()->isCancelled() ?? false,
-            cancellerId: $existingOccurrence?->getStatus()->getCancellerId(),
+            cancelled: $existingOccurrence?->getStatus()->isCancelled() ?? $status?->isCancelled() ?? false,
+            cancellerId: $existingOccurrence?->getStatus()->getCancellerId() ?? $status?->getCancellerId(),
         );
 
         return new Occurrence(
             timeRange: $timeRange,
             status: $status,
-            bookingId: $existingOccurrence?->getBookingId(),
-            id: $existingOccurrence?->getId(),
+            bookingId: $existingOccurrence?->getBookingId() ?? $bookingId,
+            id: $existingOccurrence?->getId() ?? $id,
         );
     }
 
@@ -178,7 +183,7 @@ final class OccurrenceSetBuilder
 
     private function isMissingRule(): bool
     {
-        return null !== $this->rule && null === $this->rule->getRule();
+        return null === $this->rule || null === $this->rule->getRule();
     }
 
     private function isNotMissingRule(): bool

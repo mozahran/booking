@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contract\Service;
 
+use App\Domain\DataObject\BookingRule;
 use App\Domain\DataObject\Provider;
 use App\Domain\DataObject\Space;
 use App\Domain\DataObject\User;
@@ -44,5 +45,13 @@ interface PhoenixInterface
 
     public function deactivateUser(
         User $user,
+    ): void;
+
+    public function activateBookingRule(
+        BookingRule $bookingRule,
+    ): void;
+
+    public function deactivateBookingRule(
+        BookingRule $bookingRule,
     ): void;
 }

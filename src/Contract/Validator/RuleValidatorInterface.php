@@ -6,7 +6,6 @@ namespace App\Contract\Validator;
 
 use App\Contract\DataObject\RuleInterface;
 use App\Domain\DataObject\Booking\Booking;
-use App\Domain\Exception\RuleViolationException;
 use App\Utils\RuleViolationList;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 

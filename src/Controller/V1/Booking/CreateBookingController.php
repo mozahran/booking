@@ -6,6 +6,7 @@ namespace App\Controller\V1\Booking;
 
 use App\Contract\Service\ConductorInterface;
 use App\Request\BookingRequest;
+use App\Security\BookingVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +21,7 @@ class CreateBookingController extends AbstractController
     }
 
     #[Route(path: '/v1/booking', name: 'app_booking_create', methods: ['POST'])]
-    #[IsGranted('MANAGE_BOOKING', subject: 'request', message: 'Access Denied!')]
+    #[IsGranted(attribute: BookingVoter::MANAGE, subject: 'bookingRequest', message: 'Access Denied!')]
     public function __invoke(
         BookingRequest $bookingRequest,
     ): JsonResponse {
@@ -29,8 +30,11 @@ class CreateBookingController extends AbstractController
             userId: $this->getUser()->getId(),
         );
 
-        return $this->json([
-            'data' => $booking->normalize(),
-        ], status: Response::HTTP_CREATED);
+        return $this->json(
+            data: [
+                'data' => $booking->normalize(),
+            ],
+            status: Response::HTTP_CREATED,
+        );
     }
 }

@@ -24,7 +24,6 @@ final readonly class SpacePersistor implements SpacePersistorInterface
         if (!$entity->getId()) {
             $this->entityManager->persist($entity);
         }
-
         $this->entityManager->flush();
         try {
             $this->entityManager->refresh($entity);

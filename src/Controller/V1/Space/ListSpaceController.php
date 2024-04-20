@@ -6,8 +6,6 @@ namespace App\Controller\V1\Space;
 
 use App\Contract\Resolver\SpaceResolverInterface;
 use App\Contract\Resolver\WorkspaceResolverInterface;
-use App\Domain\Exception\AccessDeniedException;
-use App\Domain\Exception\WorkspaceNotFoundException;
 use App\Request\SpaceRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,15 +23,17 @@ class ListSpaceController extends AbstractController
     public function __invoke(
         SpaceRequest $request,
     ): JsonResponse {
-        try {
-            $workspace = $this->workspaceResolver->resolve(id: $request->getWorkspaceId());
-            $spaceSet = $this->spaceResolver->resolveByWorkspace(workspaceId: $workspace->getId());
+        $workspace = $this->workspaceResolver->resolve(
+            id: $request->getWorkspaceId(),
+        );
+        $spaceSet = $this->spaceResolver->resolveByWorkspace(
+            workspaceId: $workspace->getId(),
+        );
 
-            return $this->json([
+        return $this->json(
+            data: [
                 'data' => $spaceSet->normalize(),
-            ]);
-        } catch (WorkspaceNotFoundException|AccessDeniedException $exception) {
-            return $this->json(['error' => $exception->getMessage()]);
-        }
+            ],
+        );
     }
 }

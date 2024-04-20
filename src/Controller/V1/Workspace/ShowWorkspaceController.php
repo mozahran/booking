@@ -20,10 +20,14 @@ class ShowWorkspaceController extends AbstractController
     public function __invoke(
         int $workspaceId,
     ): JsonResponse {
-        $workspace = $this->workspaceResolver->resolve(id: $workspaceId);
+        $workspace = $this->workspaceResolver->resolve(
+            id: $workspaceId,
+        );
 
-        return $this->json([
-            'data' => $workspace->normalize(),
-        ]);
+        return $this->json(
+            data: [
+                'data' => $workspace->normalize(),
+            ],
+        );
     }
 }

@@ -23,7 +23,7 @@ final readonly class BookingPersistor implements BookingPersistorInterface
         Booking $booking,
     ): Booking {
         $bookingEntity = $this->bookingTranslator->toBookingEntity($booking);
-        if (!$bookingEntity->getId()) {
+        if (null === $bookingEntity->getId()) {
             $this->entityManager->persist($bookingEntity);
         }
         $this->entityManager->flush();
@@ -34,7 +34,7 @@ final readonly class BookingPersistor implements BookingPersistorInterface
                 occurrence: $occurrence,
             );
             $occurrenceEntity->setBooking($bookingEntity);
-            if (!$occurrence->getId()) {
+            if (null === $occurrence->getId()) {
                 $this->entityManager->persist($occurrenceEntity);
             }
         }

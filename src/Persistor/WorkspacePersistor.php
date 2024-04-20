@@ -26,7 +26,6 @@ final readonly class WorkspacePersistor implements WorkspacePersistorInterface
         if (!$entity->getId()) {
             $this->entityManager->persist($entity);
         }
-
         $this->entityManager->flush();
         try {
             $this->entityManager->refresh($entity);

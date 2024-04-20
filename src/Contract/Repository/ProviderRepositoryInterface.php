@@ -21,6 +21,10 @@ interface ProviderRepositoryInterface
         array $ids,
     ): ProviderSet;
 
+    public function findManyByUser(
+        int $userId,
+    ): ProviderSet;
+
     public function all(): ProviderSet;
 
     public function activate(

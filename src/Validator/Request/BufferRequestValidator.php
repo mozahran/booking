@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Validator\Request;
+
+use App\Domain\Exception\RequestValidationException;
+
+class BufferRequestValidator
+{
+    private array $errors = [];
+
+    public function requireValue(?int $value): self
+    {
+        if (!is_int($value) && 0 !== $value) {
+            $this->errors[] = 'Parameter "value" is required and must be an integer';
+        }
+
+        return $this;
+    }
+
+    public function maybeSpaceIds(?array $value): self
+    {
+        if (null === $value
+            || count($value) > 0) {
+            return $this;
+        }
+
+        $this->errors[] = 'Parameter spaceIds must be null or an array of integers';
+
+        return $this;
+    }
+
+    /**
+     * @throws RequestValidationException
+     */
+    public function validate(): void
+    {
+        if (empty($this->errors)) {
+            return;
+        }
+
+        throw new RequestValidationException($this->errors);
+    }
+}

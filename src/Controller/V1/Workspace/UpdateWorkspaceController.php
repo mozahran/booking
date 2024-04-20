@@ -8,6 +8,7 @@ use App\Contract\Persistor\WorkspacePersistorInterface;
 use App\Contract\Resolver\WorkspaceResolverInterface;
 use App\Domain\DataObject\Workspace;
 use App\Request\WorkspaceRequest;
+use App\Security\WorkspaceVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -22,23 +23,28 @@ class UpdateWorkspaceController extends AbstractController
     }
 
     #[Route(path: '/v1/workspace/{workspaceId}', name: 'app_workspace_update', methods: ['PUT'])]
-    #[IsGranted('MANAGE_WORKSPACE', subject: 'request', message: 'Access Denied!')]
+    #[IsGranted(attribute: WorkspaceVoter::MANAGE, subject: 'request', message: 'Access Denied!')]
     public function __invoke(
         int $workspaceId,
         WorkspaceRequest $request,
     ): JsonResponse {
-        $workspace = $this->workspaceResolver->resolve(id: $workspaceId);
+        $workspace = $this->workspaceResolver->resolve(
+            id: $workspaceId,
+        );
         $workspace = new Workspace(
             name: $request->getName(),
             active: $workspace->isActive(),
             providerId: $workspace->getProviderId(),
             id: $workspace->getId(),
         );
+        $workspace = $this->workspacePersistor->persist(
+            workspace: $workspace,
+        );
 
-        $workspace = $this->workspacePersistor->persist(workspace: $workspace);
-
-        return $this->json([
-            'data' => $workspace->normalize(),
-        ]);
+        return $this->json(
+            data: [
+                'data' => $workspace->normalize(),
+            ],
+        );
     }
 }

@@ -6,6 +6,7 @@ namespace App\Controller\V1\Provider;
 
 use App\Contract\Resolver\ProviderResolverInterface;
 use App\Contract\Service\PhoenixInterface;
+use App\Domain\Enum\UserRole;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,13 +21,19 @@ class DeactivateProviderController extends AbstractController
     }
 
     #[Route(path: '/v1/provider/{providerId}/deactivate', name: 'app_provider_deactivate', methods: ['PUT'])]
-    #[IsGranted(attribute: 'ROLE_ADMIN', message: 'Access Denied!')]
+    #[IsGranted(attribute: UserRole::ADMIN->value, message: 'Access Denied!')]
     public function __invoke(
         int $providerId,
     ): JsonResponse {
-        $provider = $this->providerResolver->resolve(id: $providerId);
-        $this->phoenix->deactivateProvider(provider: $provider);
+        $provider = $this->providerResolver->resolve(
+            id: $providerId,
+        );
+        $this->phoenix->deactivateProvider(
+            provider: $provider,
+        );
 
-        return $this->json([]);
+        return $this->json(
+            data: [],
+        );
     }
 }

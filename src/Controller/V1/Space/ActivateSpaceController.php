@@ -7,6 +7,7 @@ namespace App\Controller\V1\Space;
 use App\Contract\Resolver\SpaceResolverInterface;
 use App\Contract\Service\PhoenixInterface;
 use App\Request\SpaceRequest;
+use App\Security\SpaceVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,14 +22,20 @@ class ActivateSpaceController extends AbstractController
     }
 
     #[Route(path: '/v1/space/{spaceId}/activate', name: 'app_space_activate', methods: ['PUT'])]
-    #[IsGranted('MANAGE_SPACE', subject: 'request', message: 'Access Denied!')]
+    #[IsGranted(attribute: SpaceVoter::MANAGE, subject: 'request', message: 'Access Denied!')]
     public function __invoke(
         int $spaceId,
         SpaceRequest $request,
     ): JsonResponse {
-        $space = $this->spaceResolver->resolve(id: $spaceId);
-        $this->phoenix->activateSpace(space: $space);
+        $space = $this->spaceResolver->resolve(
+            id: $spaceId,
+        );
+        $this->phoenix->activateSpace(
+            space: $space,
+        );
 
-        return $this->json([]);
+        return $this->json(
+            data: [],
+        );
     }
 }

@@ -7,19 +7,19 @@ namespace App\Domain\Exception;
 use App\Contract\DataObject\TimeBoundedRuleInterface;
 use App\Domain\DataObject\Booking\Occurrence;
 use App\Domain\DataObject\Booking\TimeRange;
+use App\Domain\DataObject\Rule\Quota;
 use App\Domain\Enum\Rule\Operator;
 use App\Domain\Enum\Rule\Predicate;
-use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
-class RuleViolationException extends Exception
+class RuleViolationException extends \Exception
 {
     public function __construct(string $message)
     {
         parent::__construct($message, Response::HTTP_BAD_REQUEST);
     }
 
-    public static function outsideAllowedTimeRange(
+    public static function outsideTimeBoundaries(
         Occurrence $occurrence,
         TimeBoundedRuleInterface $rule,
     ): self {
@@ -27,7 +27,7 @@ class RuleViolationException extends Exception
             'Occurrence must be between %s and %s. Slot %s is not possible.',
             date('H:i', $rule->getStartMinutes() * 60),
             date('H:i', $rule->getEndMinutes() * 60),
-            $occurrence->getTimeRange()->getStartsAt()->format(TimeRange::SHORT_FORMAT),
+            $occurrence->getTimeRange()->getStartsAt()->format(TimeRange::DATETIME_FORMAT),
         );
 
         return new self(
@@ -35,13 +35,20 @@ class RuleViolationException extends Exception
         );
     }
 
-    public static function outsideAllowedWeekays(
+    public static function outsideWeekdayBoundaries(
         Occurrence $occurrence,
         TimeBoundedRuleInterface $rule,
     ): self {
+        $timeRange = $occurrence->getTimeRange();
+        $startsAt = $timeRange->getStartsAt();
+        $endsAt = $timeRange->getEndsAt();
         $message = sprintf(
-            'Occurrences on %s is not allowed.',
-            $occurrence->getTimeRange()->getStartsAt()->format('l'),
+            '%s, from %s to %s is not allowed. (Allowed range: %s to %s)',
+            $startsAt->format('D, M d'),
+            $startsAt->format('H:i'),
+            $endsAt->format('H:i'),
+            gmdate('H:i', $rule->getStartMinutes() * 60),
+            gmdate('H:i', $rule->getEndMinutes() * 60),
         );
 
         return new self(
@@ -53,7 +60,7 @@ class RuleViolationException extends Exception
     {
         $message = sprintf(
             'You cannot book a slot before %d hour(s) from start time',
-            $value / Predicate::LESS_THAN->coefficient()
+            $value / Predicate::LESS_THAN->coefficient(),
         );
 
         return new self(
@@ -65,7 +72,7 @@ class RuleViolationException extends Exception
     {
         $message = sprintf(
             'You cannot book a slot before exactly %d hour(s) from start time',
-            $value / Predicate::MORE_THAN_STRICT->coefficient()
+            $value / Predicate::MORE_THAN_STRICT->coefficient(),
         );
 
         return new self(
@@ -77,7 +84,7 @@ class RuleViolationException extends Exception
     {
         $message = sprintf(
             'You cannot book a slot before %d day(s) including today from start time',
-            $value / Predicate::MORE_THAN_INCLUDING_TODAY->coefficient()
+            $value / Predicate::MORE_THAN_INCLUDING_TODAY->coefficient(),
         );
 
         return new self(
@@ -137,6 +144,13 @@ class RuleViolationException extends Exception
     {
         return new self(
             message: 'You cannot book a slot with your set of roles.',
+        );
+    }
+
+    public static function quota(Quota $rule): self
+    {
+        return new self(
+            message: sprintf('Exceeded allowed quota (value: %s)!', $rule->getValue()),
         );
     }
 

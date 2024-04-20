@@ -6,13 +6,15 @@ use App\Domain\DataObject\Rule\Availability;
 use App\Domain\DataObject\Rule\Buffer;
 use App\Domain\DataObject\Rule\Deny;
 use App\Domain\DataObject\Rule\Quota;
+use App\Domain\DataObject\Rule\Repeat;
 use App\Domain\DataObject\Rule\Window;
-use App\Domain\Exception\RuleTypeMissingImplemenationException;
+use App\Domain\Exception\RuleTypeMissingImplementationException;
 use App\Domain\Exception\RuleTypeMissingRuleValidatorException;
 use App\Validator\Rule\AvailabilityRuleValidator;
 use App\Validator\Rule\BufferRuleValidator;
 use App\Validator\Rule\DenyRuleValidator;
 use App\Validator\Rule\QuotaRuleValidator;
+use App\Validator\Rule\RepeatRuleValidator;
 use App\Validator\Rule\WindowRuleValidator;
 
 enum RuleType: string
@@ -22,9 +24,10 @@ enum RuleType: string
     case DENY = 'deny';
     case QUOTA = 'quota';
     case WINDOW = 'window';
+    case REPEAT = 'repeat';
 
     /**
-     * @throws RuleTypeMissingImplemenationException
+     * @throws RuleTypeMissingImplementationException
      */
     public function rule(): string
     {
@@ -34,14 +37,15 @@ enum RuleType: string
             self::DENY => Deny::class,
             self::QUOTA => Quota::class,
             self::WINDOW => Window::class,
-            default => throw new RuleTypeMissingImplemenationException($this),
+            self::REPEAT => Repeat::class,
+            default => throw new RuleTypeMissingImplementationException($this),
         };
     }
 
     /**
      * @throws RuleTypeMissingRuleValidatorException
      */
-    public function ruleValidator(): string
+    public function validator(): string
     {
         return match ($this) {
             self::AVAILABILITY => AvailabilityRuleValidator::class,
@@ -49,6 +53,7 @@ enum RuleType: string
             self::DENY => DenyRuleValidator::class,
             self::QUOTA => QuotaRuleValidator::class,
             self::WINDOW => WindowRuleValidator::class,
+            self::REPEAT => RepeatRuleValidator::class,
             default => throw new RuleTypeMissingRuleValidatorException($this),
         };
     }

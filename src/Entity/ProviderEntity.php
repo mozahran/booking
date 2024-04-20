@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\ProviderRepository;
@@ -73,28 +75,6 @@ class ProviderEntity
     public function getUsers(): Collection
     {
         return $this->users;
-    }
-
-    public function addUser(ProviderUserDataEntity $user): static
-    {
-        if (!$this->users->contains($user)) {
-            $this->users->add($user);
-            $user->setProvider($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(ProviderUserDataEntity $user): static
-    {
-        if ($this->users->removeElement($user)) {
-            // set the owning side to null (unless already changed)
-            if ($user->getProvider() === $this) {
-                $user->setProvider(null);
-            }
-        }
-
-        return $this;
     }
 
     /**

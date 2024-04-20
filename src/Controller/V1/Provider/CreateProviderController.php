@@ -6,9 +6,11 @@ namespace App\Controller\V1\Provider;
 
 use App\Contract\Persistor\ProviderPersistorInterface;
 use App\Domain\DataObject\Provider;
+use App\Domain\Enum\UserRole;
 use App\Request\ProviderRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -20,7 +22,7 @@ class CreateProviderController extends AbstractController
     }
 
     #[Route(path: '/v1/provider', name: 'app_provider_create', methods: ['POST'])]
-    #[IsGranted(attribute: 'ROLE_ADMIN', message: 'Access Denied!')]
+    #[IsGranted(attribute: UserRole::ADMIN->value, message: 'Access Denied!')]
     public function __invoke(
         ProviderRequest $request,
     ): JsonResponse {
@@ -29,11 +31,15 @@ class CreateProviderController extends AbstractController
             active: true,
             userId: $request->getUserId(),
         );
+        $provider = $this->providerPersistor->persist(
+            provider: $provider,
+        );
 
-        $provider = $this->providerPersistor->persist(provider: $provider);
-
-        return $this->json([
-            'data' => $provider->normalize(),
-        ]);
+        return $this->json(
+            data: [
+                'data' => $provider->normalize(),
+            ],
+            status: Response::HTTP_CREATED,
+        );
     }
 }

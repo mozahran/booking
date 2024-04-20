@@ -5,10 +5,11 @@ namespace App\DataFixtures;
 use App\Entity\SpaceEntity;
 use App\Entity\WorkspaceEntity;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class SpaceFixtures extends Fixture implements DependentFixtureInterface
+class SpaceFixtures extends Fixture implements DependentFixtureInterface, FixtureGroupInterface
 {
     public const REF_01 = 'ref.space.1';
     public const REF_02 = 'ref.space.2';
@@ -16,9 +17,9 @@ class SpaceFixtures extends Fixture implements DependentFixtureInterface
     public function load(ObjectManager $manager): void
     {
         /** @var WorkspaceEntity $workspace1 */
-        $workspace1 = $this->getReference(WorkspaceFixtures::REF_01);
+        $workspace1 = $this->getReference(WorkspaceFixtures::REF_01, WorkspaceEntity::class);
         /** @var WorkspaceEntity $workspace2 */
-        $workspace2 = $this->getReference(WorkspaceFixtures::REF_02);
+        $workspace2 = $this->getReference(WorkspaceFixtures::REF_02, WorkspaceEntity::class);
 
         $space1 = new SpaceEntity();
         $space1->setName('Space #1');
@@ -41,6 +42,14 @@ class SpaceFixtures extends Fixture implements DependentFixtureInterface
     {
         return [
             WorkspaceFixtures::class,
+        ];
+    }
+
+    public static function getGroups(): array
+    {
+        return [
+            'app',
+            'test',
         ];
     }
 }

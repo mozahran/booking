@@ -20,10 +20,14 @@ class ShowSpaceController extends AbstractController
     public function __invoke(
         int $spaceId,
     ): JsonResponse {
-        $space = $this->spaceResolver->resolve(id: $spaceId);
+        $space = $this->spaceResolver->resolve(
+            id: $spaceId,
+        );
 
-        return $this->json([
-            'data' => $space->normalize(),
-        ]);
+        return $this->json(
+            data: [
+                'data' => $space->normalize(),
+            ],
+        );
     }
 }

@@ -30,4 +30,10 @@ final readonly class ProviderResolver implements ProviderResolverInterface
     {
         return $this->providerRepository->all();
     }
+
+    public function resolveManyByUser(
+        int $userId,
+    ): ProviderSet {
+        return $this->providerRepository->findManyByUser(userId: $userId);
+    }
 }

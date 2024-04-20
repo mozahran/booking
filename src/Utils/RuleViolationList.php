@@ -16,14 +16,14 @@ final class RuleViolationList
     ) {
     }
 
-    public static function create(): self
+    public static function empty(): self
     {
         return new self(violations: []);
     }
 
     public function isEmpty(): bool
     {
-        return count($this->violations) === 0;
+        return 0 === count($this->violations);
     }
 
     public function add(RuleViolationException $violation): self

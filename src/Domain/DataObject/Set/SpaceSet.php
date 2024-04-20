@@ -30,7 +30,7 @@ class SpaceSet extends AbstractSet
             }
         }
 
-        throw new SpaceNotFoundException();
+        throw new SpaceNotFoundException(id: $id);
     }
 
     /**

@@ -6,6 +6,7 @@ namespace App\Controller\V1\Booking;
 
 use App\Contract\Service\ConductorInterface;
 use App\Request\BookingRequest;
+use App\Security\BookingVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -19,7 +20,7 @@ class UpdateBookingController extends AbstractController
     }
 
     #[Route(path: '/v1/booking/{bookingId}', name: 'app_booking_update', methods: ['PUT'])]
-    #[IsGranted('MANAGE_BOOKING', subject: 'request', message: 'Access Denied!')]
+    #[IsGranted(attribute: BookingVoter::MANAGE, subject: 'bookingRequest', message: 'Access Denied!')]
     public function __invoke(
         int $bookingId,
         BookingRequest $bookingRequest,
@@ -28,8 +29,10 @@ class UpdateBookingController extends AbstractController
             bookingRequest: $bookingRequest,
         );
 
-        return $this->json([
-            'data' => $booking->normalize(),
-        ]);
+        return $this->json(
+            data: [
+                'data' => $booking->normalize(),
+            ],
+        );
     }
 }

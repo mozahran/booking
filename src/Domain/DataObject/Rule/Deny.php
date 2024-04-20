@@ -69,18 +69,24 @@ final readonly class Deny implements Normalizable, Denormalizable, RuleInterface
             'daysBitmask' => $this->getDaysBitmask(),
             'start' => $this->getStartMinutes(),
             'end' => $this->getEndMinutes(),
-            'spaceIds' => $this->getSpaceIds(),
             'g' => $normalizedConditionGroups,
+            'spaceIds' => $this->getSpaceIds(),
         ];
     }
 
     public static function denormalize(array $data): Denormalizable
     {
+        $conditionGroups = [];
+        $normalizedConditionGroups = $data['g'] ?? [];
+        foreach ($normalizedConditionGroups as $normalizedConditionGroup) {
+            $conditionGroups[] = ConditionGroup::denormalize($normalizedConditionGroup);
+        }
+
         return new self(
             daysBitmask: $data['daysBitmask'],
-            startMinutes: $data['startTotalMinutes'],
-            endMinutes: $data['endTotalMinutes'],
-            conditionGroups: $data['g'],
+            startMinutes: $data['start'],
+            endMinutes: $data['end'],
+            conditionGroups: $conditionGroups,
             spaceIds: $data['spaceIds'],
         );
     }

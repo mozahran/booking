@@ -42,11 +42,7 @@ class BookingRequest extends AbstractRequest implements TimeRangeAware
      */
     public function validate(): void
     {
-        if (
-            '' === $this->getStartsAt()
-            || '' === $this->getEndsAt()
-            || 0 === $this->getSpaceId()
-        ) {
+        if ('' === $this->getStartsAt() || '' === $this->getEndsAt()) {
             throw new AppException('Booking payload is incomplete!');
         }
     }

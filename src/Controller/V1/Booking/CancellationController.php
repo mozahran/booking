@@ -6,10 +6,8 @@ namespace App\Controller\V1\Booking;
 
 use App\Contract\Service\VortexInterface;
 use App\Domain\Enum\CancellationIntent;
-use App\Domain\Exception\AccessDeniedException;
-use App\Domain\Exception\DataMismatchException;
-use App\Domain\Exception\InvalidIntentException;
 use App\Request\CancellationRequest;
+use App\Security\CancellationVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -22,27 +20,22 @@ class CancellationController extends AbstractController
     ) {
     }
 
-    /**
-     * @throws AccessDeniedException
-     * @throws DataMismatchException
-     * @throws InvalidIntentException
-     */
     #[Route(path: '/v1/cancel', name: 'app_cancel', methods: ['PUT'])]
-    #[IsGranted('IS_CANCELLER', subject: 'request', message: 'Access Denied!')]
+    #[IsGranted(attribute: CancellationVoter::MANAGE, subject: 'cancellationRequest', message: 'Access Denied!')]
     public function __invoke(
-        CancellationRequest $request,
+        CancellationRequest $cancellationRequest,
     ): JsonResponse {
-        match ($request->getIntent()) {
+        match ($cancellationRequest->getIntent()) {
             CancellationIntent::ALL => $this->vortex->cancelBookings(
-                bookingIds: $request->getBookingIds(),
+                bookingIds: $cancellationRequest->getBookingIds(),
                 user: $this->getUser(),
             ),
             CancellationIntent::SELECTED => $this->vortex->cancelOccurrences(
-                occurrenceIds: $request->getOccurrenceIds(),
+                occurrenceIds: $cancellationRequest->getOccurrenceIds(),
                 user: $this->getUser(),
             ),
             CancellationIntent::SELECTED_AND_FOLLOWING => $this->vortex->cancelSelectedAndFollowingOccurrences(
-                occurrenceId: current($request->getOccurrenceIds()),
+                occurrenceId: current($cancellationRequest->getOccurrenceIds()),
                 user: $this->getUser(),
             ),
         };

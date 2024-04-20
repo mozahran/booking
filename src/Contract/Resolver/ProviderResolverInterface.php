@@ -22,4 +22,8 @@ interface ProviderResolverInterface
     ): ProviderSet;
 
     public function resolveAll(): ProviderSet;
+
+    public function resolveManyByUser(
+        int $userId,
+    ): ProviderSet;
 }

@@ -16,7 +16,7 @@ enum Operator: int
     case NOT_EQUAL_TO = 5;
 
     case NOT_MULTIPLE_OF = 6;
-    case IS_MULTIPLE_OF = 7;
+    case MULTIPLE_OF = 7;
 
     case INSET = 9;
     case NOT_INSET = 10;
@@ -31,7 +31,7 @@ enum Operator: int
             self::EQUAL_TO => 'equal to',
             self::NOT_EQUAL_TO => 'not equal to',
             self::NOT_MULTIPLE_OF => 'not a multiple of',
-            self::IS_MULTIPLE_OF => 'multiple of',
+            self::MULTIPLE_OF => 'multiple of',
             self::INSET => 'in set',
             self::NOT_INSET => 'not in set',
         };

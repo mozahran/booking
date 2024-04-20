@@ -62,6 +62,19 @@ class ProviderRepository extends ServiceEntityRepository implements ProviderRepo
         return $this->providerTranslator->toProviderSet(entities: $entities);
     }
 
+    public function findManyByUser(
+        int $userId,
+    ): ProviderSet {
+        $entities = $this
+            ->createQueryBuilder('p')
+            ->andWhere('p.user = :userId')
+            ->setParameter('userId', $userId)
+            ->getQuery()
+            ->getResult();
+
+        return $this->providerTranslator->toProviderSet(entities: $entities);
+    }
+
     public function all(): ProviderSet
     {
         $entities = $this

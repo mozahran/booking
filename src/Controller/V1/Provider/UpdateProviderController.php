@@ -7,6 +7,7 @@ namespace App\Controller\V1\Provider;
 use App\Contract\Persistor\ProviderPersistorInterface;
 use App\Contract\Resolver\ProviderResolverInterface;
 use App\Domain\DataObject\Provider;
+use App\Domain\Enum\UserRole;
 use App\Request\ProviderRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,23 +23,28 @@ class UpdateProviderController extends AbstractController
     }
 
     #[Route(path: '/v1/provider/{providerId}', name: 'app_provider_update', methods: ['PUT'])]
-    #[IsGranted(attribute: 'ROLE_ADMIN', message: 'Access Denied!')]
+    #[IsGranted(attribute: UserRole::ADMIN->value, message: 'Access Denied!')]
     public function __invoke(
         int $providerId,
         ProviderRequest $request,
     ): JsonResponse {
-        $provider = $this->providerResolver->resolve(id: $providerId);
+        $provider = $this->providerResolver->resolve(
+            id: $providerId,
+        );
         $provider = new Provider(
             name: $request->getName(),
             active: $provider->isActive(),
             userId: $provider->getUserId(),
             id: $provider->getId(),
         );
+        $provider = $this->providerPersistor->persist(
+            provider: $provider,
+        );
 
-        $provider = $this->providerPersistor->persist(provider: $provider);
-
-        return $this->json([
-            'data' => $provider->normalize(),
-        ]);
+        return $this->json(
+            data: [
+                'data' => $provider->normalize(),
+            ],
+        );
     }
 }
