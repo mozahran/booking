@@ -17,7 +17,6 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<ProviderUserDataEntity>
- *
  * @method ProviderUserDataEntity|null find($id, $lockMode = null, $lockVersion = null)
  * @method ProviderUserDataEntity|null findOneBy(array $criteria, array $orderBy = null)
  * @method ProviderUserDataEntity[]    findAll()
@@ -48,7 +47,7 @@ class ProviderUserDataRepository extends ServiceEntityRepository implements Prov
                 ->getSingleResult();
 
             return $this->providerUserDataTranslator->toProviderUserData($entity);
-        } catch (NoResultException|NonUniqueResultException) {
+        } catch (NoResultException | NonUniqueResultException) {
             throw new ProviderUserDataNotFoundException();
         }
     }
@@ -61,6 +60,20 @@ class ProviderUserDataRepository extends ServiceEntityRepository implements Prov
             ->andWhere('pud.user = :userId')
             ->andWhere('pud.active = true')
             ->setParameter('userId', $userId)
+            ->getQuery()
+            ->getResult();
+
+        return $this->providerUserDataTranslator->toProviderUserDataSet($entities);
+    }
+
+    public function findManyByUsers(
+        array $userIds,
+    ): ProviderUserDataSet {
+        $entities = $this
+            ->createQueryBuilder('pud')
+            ->andWhere('pud.user IN (:userIds)')
+            ->andWhere('pud.active = true')
+            ->setParameter('userIds', $userIds)
             ->getQuery()
             ->getResult();
 

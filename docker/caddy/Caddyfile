@@ -35,7 +35,7 @@ log
 
 route {
     root * /app/public
-    import cors http://localhost:90
+    import cors http://localhost:88
     php_fastcgi unix//var/run/php/php-fpm.sock
     encode zstd gzip
     file_server

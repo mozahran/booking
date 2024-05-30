@@ -21,4 +21,11 @@ interface ProviderUserDataRepositoryInterface
     public function findManyByUser(
         int $userId,
     ): ProviderUserDataSet;
+
+    /**
+     * @param int[] $userIds
+     */
+    public function findManyByUsers(
+        array $userIds,
+    ): ProviderUserDataSet;
 }

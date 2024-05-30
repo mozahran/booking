@@ -4,7 +4,7 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.2",
+        "php": "8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "doctrine/dbal": "4.*",
@@ -117,7 +117,7 @@
             "./vendor/bin/php-cs-fixer fix src --dry-run --rules=@Symfony --using-cache=no --diff --allow-risky=yes --verbose"
         ],
         "cs-fix": [
-            "./vendor/bin/php-cs-fixer fix src --rules=@Symfony --using-cache=no --allow-risky=yes"
+            "./vendor/bin/php-cs-fixer fix src"
         ],
         "php-sanity": [
             "find src -type f -name '*.php' -exec php -l {} \\;"
