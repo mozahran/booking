@@ -1,40 +1,23 @@
 services:
   php:
-    build:
-      context: .
-      target: app_php_dev
-      args:
-        SYMFONY_VERSION: ${SYMFONY_VERSION:-}
-        STABILITY: ${STABILITY:-stable}
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
+    image: ${IMAGES_PREFIX:-}app-php
     restart: unless-stopped
-    depends_on:
-      - mysql
-    volumes:
-      - .:/app
-      - php_socket:/var/run/php
-    ports:
-      - '8000:80'
     environment:
       APP_ENV: ${APP_ENV}
       DATABASE_URL: ${DATABASE_URL}
       XDEBUG_MODE: "${XDEBUG_MODE:-off}"
-
-  caddy:
-    build:
-      context: .
-      target: app_caddy
-    depends_on:
-      - php
-    environment:
-      SERVER_NAME: ${SERVER_NAME:-localhost, caddy:80}
-    restart: unless-stopped
+      SERVER_NAME: ${SERVER_NAME:-localhost}, php:80
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS:-^${SERVER_NAME:-example\.com|localhost}|php$$}
+      # The two next lines can be removed after initial installation
+      SYMFONY_VERSION: ${SYMFONY_VERSION:-}
+      STABILITY: ${STABILITY:-stable}
     volumes:
       - php_socket:/var/run/php
       - caddy_data:/data
       - caddy_config:/config
     ports:
+      - '8000:80'
       # HTTP
       - target: 80
         published: ${HTTP_PORT:-80}
@@ -64,7 +47,3 @@ volumes:
   php_socket:
   caddy_data:
   caddy_config:
-
-###> doctrine/doctrine-bundle ###
-  database_data:
-###< doctrine/doctrine-bundle ###
