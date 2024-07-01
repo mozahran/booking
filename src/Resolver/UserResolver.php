@@ -24,4 +24,10 @@ final readonly class UserResolver implements UserResolverInterface
     {
         return $this->userRepository->findMany();
     }
+
+    public function resolveByEmail(
+        string $email,
+    ): User {
+        return $this->userRepository->findOneByEmail(email: $email);
+    }
 }

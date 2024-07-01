@@ -22,9 +22,7 @@ class ListProviderController extends AbstractController
         $providerSet = $this->providerResolver->resolveAll();
 
         return $this->json(
-            data: [
-                'data' => $providerSet->normalize(),
-            ],
+            data: $providerSet->normalize(),
         );
     }
 }

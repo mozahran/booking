@@ -17,5 +17,12 @@ interface UserResolverInterface
         int $id,
     ): User;
 
+    /**
+     * @throws UserNotFoundException
+     */
+    public function resolveByEmail(
+        string $email
+    ): User;
+
     public function resolveMany(): UserSet;
 }

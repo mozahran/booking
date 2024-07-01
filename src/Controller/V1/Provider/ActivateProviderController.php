@@ -21,7 +21,7 @@ class ActivateProviderController extends AbstractController
     }
 
     #[Route(path: '/v1/provider/{providerId}/activate', name: 'app_provider_activate', methods: ['PUT'])]
-    #[IsGranted(attribute: UserRole::ADMIN->value, message: 'Access Denied!')]
+    // #[IsGranted(attribute: UserRole::ADMIN->value, message: 'Access Denied!')]
     public function __invoke(
         int $providerId,
     ): JsonResponse {

@@ -7,10 +7,10 @@ namespace App\Domain\DataObject\Set;
 use App\Domain\DataObject\ProviderUserData;
 
 /**
- * @method ProviderUserData|null first()
- * @method ProviderUserData|null last()
- * @method ProviderUserData[]    items()
- * @method array<int, ProviderUserData>    indexByUserId()
+ * @method ProviderUserData|null        first()
+ * @method ProviderUserData|null        last()
+ * @method ProviderUserData[]           items()
+ * @method array<int, ProviderUserData> indexByUserId()
  * @method add(ProviderUserData $item)
  * @method remove(ProviderUserData $item)
  */

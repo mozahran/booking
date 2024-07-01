@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\V1\Provider;
 
 use App\Contract\Resolver\ProviderResolverInterface;
+use App\Contract\Resolver\WorkspaceResolverInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -13,6 +14,7 @@ class ShowProviderController extends AbstractController
 {
     public function __construct(
         private readonly ProviderResolverInterface $providerResolver,
+        private readonly WorkspaceResolverInterface $workspaceResolver,
     ) {
     }
 
@@ -24,9 +26,12 @@ class ShowProviderController extends AbstractController
             id: $providerId,
         );
 
+        $workspaces = $this->workspaceResolver->resolveByProvider(providerId: $providerId);
+
         return $this->json(
             data: [
-                'data' => $provider->normalize(),
+                'provider' => $provider->normalize(),
+                'workspaces' => $workspaces->normalize(),
             ],
         );
     }

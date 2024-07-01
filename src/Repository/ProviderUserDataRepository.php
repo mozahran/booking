@@ -17,6 +17,7 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<ProviderUserDataEntity>
+ *
  * @method ProviderUserDataEntity|null find($id, $lockMode = null, $lockVersion = null)
  * @method ProviderUserDataEntity|null findOneBy(array $criteria, array $orderBy = null)
  * @method ProviderUserDataEntity[]    findAll()
@@ -47,7 +48,7 @@ class ProviderUserDataRepository extends ServiceEntityRepository implements Prov
                 ->getSingleResult();
 
             return $this->providerUserDataTranslator->toProviderUserData($entity);
-        } catch (NoResultException | NonUniqueResultException) {
+        } catch (NoResultException|NonUniqueResultException) {
             throw new ProviderUserDataNotFoundException();
         }
     }

@@ -42,9 +42,7 @@ class UpdateProviderController extends AbstractController
         );
 
         return $this->json(
-            data: [
-                'data' => $provider->normalize(),
-            ],
+            data: $provider->normalize(),
         );
     }
 }

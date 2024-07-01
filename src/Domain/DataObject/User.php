@@ -64,6 +64,7 @@ final readonly class User implements Normalizable, Identifiable
             'id' => $this->getId(),
             'name' => $this->getName(),
             'email' => $this->getEmail(),
+            'password' => $this->getPassword(),
             'active' => $this->isActive(),
             'roles' => $this->getRoles(),
         ];

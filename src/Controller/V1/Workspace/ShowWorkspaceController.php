@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\V1\Workspace;
 
+use App\Contract\Resolver\SpaceResolverInterface;
 use App\Contract\Resolver\WorkspaceResolverInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,6 +14,7 @@ class ShowWorkspaceController extends AbstractController
 {
     public function __construct(
         private readonly WorkspaceResolverInterface $workspaceResolver,
+        private readonly SpaceResolverInterface $spaceResolver,
     ) {
     }
 
@@ -24,9 +26,12 @@ class ShowWorkspaceController extends AbstractController
             id: $workspaceId,
         );
 
+        $spaces = $this->spaceResolver->resolveByWorkspace(workspaceId: $workspaceId);
+
         return $this->json(
             data: [
-                'data' => $workspace->normalize(),
+                'workspace' => $workspace->normalize(),
+                'spaces' => $spaces->normalize(),
             ],
         );
     }

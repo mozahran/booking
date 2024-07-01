@@ -17,6 +17,13 @@ interface UserRepositoryInterface
         int $id,
     ): User;
 
+    /**
+     * @throws UserNotFoundException
+     */
+    public function findOneByEmail(
+        string $email,
+    ): User;
+
     public function findMany(): UserSet;
 
     public function activate(

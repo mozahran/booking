@@ -56,6 +56,19 @@ final readonly class TimeRange implements Normalizable
         );
     }
 
+    /**
+     * @throws InvalidTimeRangeException
+     */
+    public static function today(): TimeRange
+    {
+        $today = new \DateTime();
+
+        return new self(
+            startsAt: $today->format('Y-m-d 00:00:00'),
+            endsAt: $today->format('Y-m-d 23:59:59'),
+        );
+    }
+
     public function getStartsAt(): \DateTimeImmutable
     {
         return $this->startsAt;

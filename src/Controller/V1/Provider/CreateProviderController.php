@@ -36,9 +36,7 @@ class CreateProviderController extends AbstractController
         );
 
         return $this->json(
-            data: [
-                'data' => $provider->normalize(),
-            ],
+            data: $provider->normalize(),
             status: Response::HTTP_CREATED,
         );
     }

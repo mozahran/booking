@@ -54,15 +54,32 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     ): User {
         try {
             $entity = $this
-                ->createQueryBuilder('s')
-                ->andWhere('s.id = :spaceId')
-                ->setParameter('spaceId', $id)
+                ->createQueryBuilder('u')
+                ->andWhere('u.id = :userId')
+                ->setParameter('userId', $id)
                 ->getQuery()
                 ->getSingleResult();
 
             return $this->userTranslator->toUser($entity);
         } catch (NonUniqueResultException|NoResultException) {
             throw new UserNotFoundException(id: $id);
+        }
+    }
+
+    public function findOneByEmail(
+        string $email,
+    ): User {
+        try {
+            $entity = $this
+                ->createQueryBuilder('u')
+                ->andWhere('u.email = :email')
+                ->setParameter('email', $email)
+                ->getQuery()
+                ->getSingleResult();
+
+            return $this->userTranslator->toUser($entity);
+        } catch (NonUniqueResultException|NoResultException) {
+            throw new UserNotFoundException(id: 0);
         }
     }
 
